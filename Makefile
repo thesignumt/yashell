@@ -1,7 +1,8 @@
 CC := gcc
-CFLAGS := -Wall -O2
+CFLAGS := -Wall -O2 -I$(INC_DIR)
 
 SRC_DIR := src
+INC_DIR := include
 BUILD_DIR := build
 BIN := app
 
