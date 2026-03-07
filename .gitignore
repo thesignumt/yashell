@@ -1,3 +1,5 @@
+compile_commands.json
+
 # Prerequisites
 *.d
 
@@ -7,6 +9,9 @@
 *.obj
 *.elf
 build/
+
+# Cache
+.cache/
 
 # Linker output
 *.ilk
