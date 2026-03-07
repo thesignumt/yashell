@@ -34,4 +34,4 @@ typedef struct {
   size_t idx;
 } Token;
 
-Token *tok_new(TokenType t, const char *lexeme, size_t idx);
+Token *new_tok(TokenType t, const char *lexeme, size_t idx);

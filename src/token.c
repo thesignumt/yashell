@@ -7,7 +7,7 @@
 /*
  * NOTE: make sure to free(tok->lexeme) and free(tok) when done
  */
-Token* tok_new(TokenType t, const char* lexeme, size_t idx) {
+Token* new_tok(TokenType t, const char* lexeme, size_t idx) {
   Token* tok = malloc(sizeof(Token));
   if (!tok) return NULL;
 
