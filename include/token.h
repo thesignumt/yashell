@@ -20,7 +20,10 @@ typedef enum {
   LPAREN, // (
   RPAREN, // )
 
+  IDENTIFIER,
   STRING, // "hello world" or 'hello world'
+  NUMBER,
+  SYMBOL,
 
   VARIABLE, // $HOME, $PATH, etc.
 
