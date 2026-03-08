@@ -75,7 +75,7 @@ Token* next_token(Lexer* lexer) {
   return read_symbol(lexer);
 }
 
-Token* Lex(const char* src, size_t* out_count) {
+TokenArr Lex(const char* src) {
   Lexer lexer = init_lexer(src);
   size_t capacity = 8;
   size_t count = 0;
@@ -101,6 +101,6 @@ Token* Lex(const char* src, size_t* out_count) {
     free(token);
   }
 
-  *out_count = count;
-  return tokens;
+  TokenArr result = {.tokens = tokens, .count = count};
+  return result;
 }

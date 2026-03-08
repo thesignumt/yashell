@@ -28,4 +28,4 @@ Token *read_symbol(Lexer *lexer);
 
 Token *next_token(Lexer *lexer);
 
-Token *Lex(const char *src, size_t *out_count);
+TokenArr Lex(const char *src);

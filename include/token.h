@@ -38,3 +38,8 @@ typedef struct {
 } Token;
 
 Token *new_tok(TokenType t, const char *lexeme, size_t idx);
+
+typedef struct {
+  Token *tokens;
+  size_t count;
+} TokenArr;
