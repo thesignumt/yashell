@@ -39,14 +39,14 @@ Pipeline* Parse(TokenArr* tokens) {
       add_cmd(pipeline, cmd);
       cmd = (Cmd){0};
     } else if (token.type == STDIN_REDIRECT) {
-      i++;
+      if (++i < tokens->count)
         cmd.stdin_redirect = strdup(tokens->tokens[i].lexeme);
     } else if (token.type == STDOUT_REDIRECT) {
-      i++;
+      if (++i < tokens->count)
         cmd.stdout_redirect = strdup(tokens->tokens[i].lexeme);
       cmd.append_stdout = false;
     } else if (token.type == REDIRECT_APPEND) {
-      i++;
+      if (++i < tokens->count)
         cmd.stdout_redirect = strdup(tokens->tokens[i].lexeme);
       cmd.append_stdout = true;
     } else if (token.type == BACKGROUND) {
