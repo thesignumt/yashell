@@ -40,20 +40,20 @@ Pipeline* Parse(TokenArr* tokens) {
       cmd = (Cmd){0};
     } else if (token.type == STDIN_REDIRECT) {
       i++;
-      cmd.stdin_redirect = tokens->tokens[i].lexeme;
+        cmd.stdin_redirect = strdup(tokens->tokens[i].lexeme);
     } else if (token.type == STDOUT_REDIRECT) {
       i++;
-      cmd.stdout_redirect = tokens->tokens[i].lexeme;
+        cmd.stdout_redirect = strdup(tokens->tokens[i].lexeme);
       cmd.append_stdout = false;
     } else if (token.type == REDIRECT_APPEND) {
       i++;
-      cmd.stdout_redirect = tokens->tokens[i].lexeme;
+        cmd.stdout_redirect = strdup(tokens->tokens[i].lexeme);
       cmd.append_stdout = true;
     } else if (token.type == BACKGROUND) {
       pipeline->run_in_bg = true;
     } else {
       if (cmd.name == NULL || cmd.name[0] == '\0') {
-        cmd.name = token.lexeme;
+        cmd.name = strdup(token.lexeme);
       } else {
         add_arg(&cmd, token.lexeme);
       }
