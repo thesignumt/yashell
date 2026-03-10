@@ -26,6 +26,7 @@ typedef enum {
   SYMBOL,
 
   VARIABLE, // $HOME, $PATH, etc.
+  PATH,
 
   END_OF_FILE,
   UNKNOWN

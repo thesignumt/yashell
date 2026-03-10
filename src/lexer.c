@@ -45,6 +45,48 @@ Token* read_identifier(Lexer* lexer) {
   return new_tok(IDENTIFIER, buffer, lexer->idx);
 }
 
+Token* read_path(Lexer* lexer) {
+  char buffer[1024];
+  size_t i = 0;
+
+  while (!isspace(lexer->current) && !strchr("|&<>", lexer->current) &&
+         lexer->current != '\0' && i < sizeof(buffer) - 1) {
+    buffer[i++] = lexer->current;
+    advance(lexer);
+  }
+
+  buffer[i] = '\0';
+  return new_tok(PATH, buffer, lexer->idx);
+}
+
+Token* read_string(Lexer* lexer) {
+  char quote = lexer->current;  // ' or "
+  advance(lexer);               // skip opening quote
+
+  char buffer[1024];
+  size_t i = 0;
+
+  while (lexer->current != quote && !is_eof(lexer) && i < sizeof(buffer) - 1) {
+    if (lexer->current == '\\') {  // handle escape sequences
+      advance(lexer);
+      if (lexer->current == quote || lexer->current == '\\') {
+        buffer[i++] = lexer->current;
+        advance(lexer);
+      } else {
+        buffer[i++] = '\\';  // keep unknown escapes as-is
+      }
+    } else {
+      buffer[i++] = lexer->current;
+      advance(lexer);
+    }
+  }
+
+  advance(lexer);  // skip closing quote
+
+  buffer[i] = '\0';
+  return new_tok(STRING, buffer, lexer->idx);
+}
+
 Token* read_number(Lexer* lexer) {
   char buffer[1024];
   size_t i = 0;
@@ -113,7 +155,10 @@ Token* next_token(Lexer* lexer) {
 
   if (is_eof(lexer)) return new_tok(END_OF_FILE, "", lexer->idx);
 
-  if (isalpha(lexer->current)) return read_identifier(lexer);
+  if (lexer->current == '\'' || lexer->current == '"')
+    return read_string(lexer);
+  if (isalpha(lexer->current) || lexer->current == '/' || lexer->current == '.')
+    return read_path(lexer);
   if (isdigit(lexer->current)) return read_number(lexer);
 
   return read_symbol(lexer);
