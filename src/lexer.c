@@ -59,9 +59,53 @@ Token* read_number(Lexer* lexer) {
 }
 
 Token* read_symbol(Lexer* lexer) {
-  char symbol[2] = {lexer->current, '\0'};
-  advance(lexer);
-  return new_tok(SYMBOL, symbol, lexer->idx);
+  size_t start = lexer->idx;
+
+  switch (lexer->current) {
+    case '<':
+      advance(lexer);
+      return new_tok(STDIN_REDIRECT, "<", start);
+    case '>':
+      if (peek(*lexer) == '>') {
+        advance(lexer);
+        advance(lexer);
+        return new_tok(REDIRECT_APPEND, ">>", start);
+      }
+      advance(lexer);
+      return new_tok(STDOUT_REDIRECT, ">", start);
+
+    case '|':
+      if (peek(*lexer) == '|') {
+        advance(lexer);
+        advance(lexer);
+        return new_tok(OR, "||", start);
+      }
+      advance(lexer);
+      return new_tok(PIPE, "|", start);
+
+    case '&':
+      if (peek(*lexer) == '&') {
+        advance(lexer);
+        advance(lexer);
+        return new_tok(AND, "&&", start);
+      }
+      advance(lexer);
+      return new_tok(BACKGROUND, "&", start);
+
+    case '(':
+      advance(lexer);
+      return new_tok(LPAREN, "(", start);
+
+    case ')':
+      advance(lexer);
+      return new_tok(RPAREN, ")", start);
+
+    default: {
+      char buf[2] = {lexer->current, '\0'};
+      advance(lexer);
+      return new_tok(SYMBOL, buf, start);
+    }
+  }
 }
 
 Token* next_token(Lexer* lexer) {

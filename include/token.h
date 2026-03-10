@@ -6,8 +6,8 @@ typedef enum {
   COMMAND,  // e.g., ls, echo, git
   ARGUMENT, // e.g., file names, options
 
-  REDIRECT_IN,     // <
-  REDIRECT_OUT,    // >
+  STDIN_REDIRECT,  // <
+  STDOUT_REDIRECT, // >
   REDIRECT_APPEND, // >>
 
   PIPE, // |
