@@ -15,16 +15,20 @@ int main(void) {
   while (yashell_running) {
     printf(">>> ");
     if (!fgets(input, sizeof(input), stdin)) {
-      continue;
+      break;
     }
 
     char *nl = strchr(input, '\n');
     if (nl) *nl = '\0';
+    if (input[0] == '\0') continue;
 
     TokenArr tokens = Lex(input);
 
     Pipeline *pipeline = Parse(&tokens);
-    print_pipeline(pipeline);
+    if (pipeline->count == 0) continue;
+
+    Cmd *cmd0 = &pipeline->cmds[0];
+    puts(cmd0->name);
   }
 
   return 0;
