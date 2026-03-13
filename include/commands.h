@@ -1,0 +1,18 @@
+#pragma once
+
+typedef enum {
+  STATUS_SUCCESS = 0,
+  STATUS_ERROR = 1,
+  STATUS_EXIT_CMD = 2,
+  STATUS_CMD_NOT_FOUND = 3
+} CmdStatus;
+
+typedef struct {
+  CmdStatus status; // 0 = success, non-zero = error code
+  char *output;     // optional string output from the command
+  void *data;       // optional pointer to extra data (if needed)
+} CmdResult;
+
+CmdResult cmd_res_init(void);
+
+CmdResult cmd_echo(const char *args);
