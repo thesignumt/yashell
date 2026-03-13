@@ -44,7 +44,7 @@ int main(void) {
   bool yashell_running = true;
   char input[2049];
   while (yashell_running) {
-    printf("> ");
+    printf(">>> ");
     if (!fgets(input, sizeof(input), stdin)) {
       continue;
     }
