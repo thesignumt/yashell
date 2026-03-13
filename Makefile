@@ -1,7 +1,7 @@
 SRC_DIR := src
 INC_DIR := include
 BUILD_DIR := build
-BIN := app
+BIN := app.exe
 
 CC := gcc
 
@@ -25,11 +25,11 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) $(DEPFLAGS) -c $< -o $@
 
 $(BUILD_DIR):
-	@[ -d $(BUILD_DIR) ] || mkdir $(BUILD_DIR)
+	if (!(Test-Path -Path $(BUILD_DIR))) { New-Item -ItemType Directory -Path $(BUILD_DIR) | Out-Null }
 
 clean:
-	@[ -d $(BUILD_DIR) ] && rm -rf $(BUILD_DIR)
-	@[ -f $(BIN) ] && rm -f $(BIN)
+	if (Test-Path -Path $(BUILD_DIR)) { Remove-Item -Recurse -Force $(BUILD_DIR) }
+	if (Test-Path -Path $(BIN)) { Remove-Item -Force $(BIN) }
 
 -include $(DEPS)
 
