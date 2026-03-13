@@ -48,7 +48,9 @@ int main(void) {
     if (!fgets(input, sizeof(input), stdin)) {
       continue;
     }
-    input[strcspn(input, "\n")] = '\0';
+
+    char *nl = strchr(input, '\n');
+    if (nl) *nl = '\0';
 
     TokenArr tokens = Lex(input);
 
