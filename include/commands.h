@@ -1,5 +1,7 @@
 #pragma once
 
+typedef struct CmdCache CmdCache;
+
 typedef enum {
   STATUS_SUCCESS = 0,
   STATUS_ERROR = 1,
@@ -13,6 +15,6 @@ typedef struct {
   void *data;       // optional pointer to extra data (if needed)
 } CmdResult;
 
-CmdResult cmd_res_init(void);
-
 CmdResult cmd_echo(const char *args);
+
+CmdCache *cache_cmd_init(void);
