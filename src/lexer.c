@@ -20,9 +20,20 @@ void advance(Lexer* lexer) {
   lexer->idx += 1;
   lexer->current = lexer->input[lexer->idx];
 }
+void advancen(Lexer* lexer, size_t n) {
+  size_t remaining =
+      strlen(lexer->input + lexer->idx);        // chars left including current
+  size_t step = n < remaining ? n : remaining;  // don't go past end
+  lexer->idx += step;
+  lexer->current = lexer->input[lexer->idx];
+}
 
 char peek(Lexer lexer) {
   return lexer.input[lexer.idx + 1] ? lexer.input[lexer.idx + 1] : '\0';
+}
+char peekn(Lexer lexer, size_t n) {
+  size_t idx = lexer.idx + n;
+  return lexer.input[idx] ? lexer.input[idx] : '\0';
 }
 
 bool is_eof(Lexer* lexer) { return lexer->current == '\0'; }

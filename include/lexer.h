@@ -13,8 +13,10 @@ typedef struct {
 Lexer init_lexer(const char *input);
 
 void advance(Lexer *lexer);
+void advancen(Lexer *lexer, size_t n);
 
 char peek(Lexer lexer);
+char peekn(Lexer lexer, size_t n);
 
 bool is_eof(Lexer *lexer);
 
