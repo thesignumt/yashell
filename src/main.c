@@ -9,10 +9,13 @@
 #include "parser.h"
 #include "token.h"
 
+#define INPUT_SIZE 2048
+
 int main(void) {
   bool yashell_running = true;
   char input[2049];
 
+  char input[INPUT_SIZE];
   while (yashell_running) {
     printf(">>> ");
     if (!fgets(input, sizeof(input), stdin)) {
