@@ -24,7 +24,7 @@ void skip_whitespace(Lexer *lexer);
 
 Token *read_identifier(Lexer *lexer);
 
-Token *read_number(Lexer *lexer);
+Token *read_string(Lexer *lexer);
 
 Token *read_symbol(Lexer *lexer);
 
