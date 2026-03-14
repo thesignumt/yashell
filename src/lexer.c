@@ -122,14 +122,11 @@ Token* next_token(Lexer* lexer) {
 
 TokenArr Lex(const char* src) {
   Lexer lexer = init_lexer(src);
-  size_t capacity = 8;
-  size_t count = 0;
+  size_t capacity = 8, count = 0;
   Token* tokens = malloc(capacity * sizeof(Token));
 
-  bool lexing = true;
-  while (lexing) {
+  while (true) {
     Token* token = next_token(&lexer);
-
     if (count >= capacity) {
       capacity *= 2;
       tokens = realloc(tokens, capacity * sizeof(Token));
@@ -140,12 +137,12 @@ TokenArr Lex(const char* src) {
     tokens[count].idx = token->idx;
     count++;
 
-    if (token->type == END_OF_FILE) lexing = false;
-
     free(token->lexeme);
     free(token);
+
+    if (tokens[count - 1].type == END_OF_FILE) break;
   }
 
-  TokenArr result = {.tokens = tokens, .count = count};
+  TokenArr result = {tokens, count};
   return result;
 }
