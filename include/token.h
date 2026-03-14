@@ -3,33 +3,14 @@
 #include <stddef.h>
 
 typedef enum {
-  COMMAND,  // e.g., ls, echo, git
-  ARGUMENT, // e.g., file names, options
-
   STDIN_REDIRECT,  // <
   STDOUT_REDIRECT, // >
   REDIRECT_APPEND, // >>
-
-  PIPE, // |
-
-  AND, // &&
-  OR,  // ||
-
-  BACKGROUND, // &
-
-  LPAREN, // (
-  RPAREN, // )
-
-  IDENTIFIER,
-  STRING, // "hello world" or 'hello world'
-  NUMBER,
-  SYMBOL,
-
-  VARIABLE, // $HOME, $PATH, etc.
-  PATH,
-
-  END_OF_FILE,
-  UNKNOWN
+  PIPE,            // |
+  BACKGROUND,      // &
+  IDENTIFIER,      // commands & arguments
+  STRING,          // "quoted args"
+  END_OF_FILE,     // end of input
 } TokenType;
 
 typedef struct {
