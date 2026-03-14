@@ -2,6 +2,7 @@
 
 #include "cache.h"
 #include "commands.h"
+#define INIT_CC_CAPACITY 64  // initial cmd cache capacity
 
 CmdResult cmd_echo(const char* args) {
   CmdResult result;
@@ -12,7 +13,7 @@ CmdResult cmd_echo(const char* args) {
 }
 
 CmdCache* cache_cmd_init(void) {
-  CmdCache* cache = cmd_cache_init(64);
+  CmdCache* cache = cmd_cache_init(INIT_CC_CAPACITY);
 
   cmd_cache_put(cache, "echo", cmd_echo);
 
