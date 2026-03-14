@@ -12,19 +12,14 @@ void add_cmd(Pipeline* pipeline, Cmd cmd) {
   pipeline->count++;
 }
 void add_arg(Cmd* cmd, const char* arg) {
-  int n = 0;
-  if (cmd->args) {
-    while (cmd->args[n]) n++;  // count existing args
-  }
-
   // realloc to hold one more arg + NULL terminator
-  cmd->args = realloc(cmd->args, (n + 2) * sizeof(char*));
+  cmd->args = realloc(cmd->args, sizeof(char*) * (cmd->argc + 2));
 
   // allocate and copy the new string
-  cmd->args[n] = malloc(strlen(arg) + 1);
-  strcpy(cmd->args[n], arg);
+  cmd->args[cmd->argc] = malloc(strlen(arg) + 1);
+  strcpy(cmd->args[cmd->argc], arg);
 
-  cmd->args[n + 1] = NULL;  // keep NULL-terminated
+  cmd->args[++cmd->argc] = NULL;  // keep NULL-terminated
 }
 
 Pipeline* Parse(TokenArr* tokens) {
