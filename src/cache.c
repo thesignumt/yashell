@@ -18,9 +18,23 @@ CmdCache* cmd_cache_init(size_t capacity) {
   return cache;
 }
 
+static int free_cmdfns(void* ctx, struct hashmap_element_s* e) {
+  (void)ctx;
+
+  if (e->data) {
+    free(e->data);
+    e->data = NULL;
+  }
+  return -1;
+}
 void cmd_cache_free(CmdCache* cache) {
-  hashmap_destroy(cache->map);  // free the hashmap
-  free(cache);
+  if (!cache) return;
+
+  hashmap_iterate_pairs(cache->map, free_cmdfns, NULL);  // free all CmdFn*
+  hashmap_destroy(cache->map);  // destroy hashmap internals
+
+  free(cache->map);  // free hashmap struct
+  free(cache);       // free CmdCache
 }
 
 void cmd_cache_put(CmdCache* cache, const char* cmd_name, CmdFn f) {
