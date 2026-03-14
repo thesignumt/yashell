@@ -56,20 +56,6 @@ Token* read_identifier(Lexer* lexer) {
   return new_tok(IDENTIFIER, buffer, lexer->idx);
 }
 
-Token* read_path(Lexer* lexer) {
-  char buffer[1024];
-  size_t i = 0;
-
-  while (!isspace(lexer->current) && !strchr("|&<>", lexer->current) &&
-         lexer->current != '\0' && i < sizeof(buffer) - 1) {
-    buffer[i++] = lexer->current;
-    advance(lexer);
-  }
-
-  buffer[i] = '\0';
-  return new_tok(PATH, buffer, lexer->idx);
-}
-
 Token* read_string(Lexer* lexer) {
   char quote = lexer->current;
   advance(lexer);  // skip opening quote
@@ -95,67 +81,29 @@ Token* read_string(Lexer* lexer) {
   return new_tok(STRING, buffer, lexer->idx);
 }
 
-Token* read_number(Lexer* lexer) {
-  char buffer[1024];
-  size_t i = 0;
-
-  while (isdigit(lexer->current) && i < sizeof(buffer) - 1) {
-    buffer[i++] = lexer->current;
-    advance(lexer);
-  }
-
-  buffer[i] = '\0';
-  return new_tok(NUMBER, buffer, lexer->idx);
-}
-
 // Symbols: < > >> | &
 Token* read_symbol(Lexer* lexer) {
   size_t start = lexer->idx;
-
   switch (lexer->current) {
     case '<':
       advance(lexer);
       return new_tok(STDIN_REDIRECT, "<", start);
     case '>':
       if (peek(*lexer) == '>') {
-        advance(lexer);
-        advance(lexer);
+        advancen(lexer, 2);
         return new_tok(REDIRECT_APPEND, ">>", start);
       }
       advance(lexer);
       return new_tok(STDOUT_REDIRECT, ">", start);
-
     case '|':
-      if (peek(*lexer) == '|') {
-        advance(lexer);
-        advance(lexer);
-        return new_tok(OR, "||", start);
-      }
       advance(lexer);
       return new_tok(PIPE, "|", start);
-
     case '&':
-      if (peek(*lexer) == '&') {
-        advance(lexer);
-        advance(lexer);
-        return new_tok(AND, "&&", start);
-      }
       advance(lexer);
       return new_tok(BACKGROUND, "&", start);
-
-    case '(':
+    default:
       advance(lexer);
-      return new_tok(LPAREN, "(", start);
-
-    case ')':
-      advance(lexer);
-      return new_tok(RPAREN, ")", start);
-
-    default: {
-      char buf[2] = {lexer->current, '\0'};
-      advance(lexer);
-      return new_tok(SYMBOL, buf, start);
-    }
+      return NULL;  // unknown symbol
   }
 }
 
