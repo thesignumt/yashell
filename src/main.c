@@ -20,7 +20,7 @@ int main(void) {
 
     char *nl = strchr(input, '\n');
     if (nl) *nl = '\0';
-    if (input[0] == '\0') continue;
+    if (!*input) continue;
 
     TokenArr tokens = Lex(input);
 
