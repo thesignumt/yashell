@@ -12,6 +12,7 @@
 int main(void) {
   bool yashell_running = true;
   char input[2049];
+
   while (yashell_running) {
     printf(">>> ");
     if (!fgets(input, sizeof(input), stdin)) {
@@ -23,7 +24,6 @@ int main(void) {
     if (!*input) continue;
 
     TokenArr tokens = Lex(input);
-
     Pipeline *pipeline = Parse(&tokens);
     if (pipeline->count == 0) continue;
 
