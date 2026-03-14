@@ -1,5 +1,7 @@
 #pragma once
 
+#define INIT_CC_CAPACITY 64 // initial cmd cache capacity
+
 typedef struct CmdCache CmdCache;
 
 typedef enum {
@@ -15,6 +17,7 @@ typedef struct {
   void *data;       // optional pointer to extra data (if needed)
 } CmdResult;
 
+typedef CmdResult (*CmdFn)(const char *args);
 CmdResult cmd_echo(const char *args);
 
 CmdCache *cache_cmd_init(void);

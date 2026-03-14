@@ -2,7 +2,6 @@
 
 #include "cache.h"
 #include "commands.h"
-#define INIT_CC_CAPACITY 64  // initial cmd cache capacity
 
 CmdResult cmd_echo(const char* args) {
   CmdResult res;

@@ -3,7 +3,6 @@
 #include "commands.h"
 #include <stddef.h>
 
-typedef CmdResult (*CmdFn)(const char *args);
 typedef struct CmdCache CmdCache;
 
 CmdCache *cmd_cache_init(size_t capacity);
