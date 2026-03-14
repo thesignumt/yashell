@@ -42,16 +42,16 @@ void skip_whitespace(Lexer* lexer) {
   while (isspace(lexer->current)) advance(lexer);
 }
 
+// IDENTIFIER: command names, args, paths
 Token* read_identifier(Lexer* lexer) {
   char buffer[1024];
   size_t i = 0;
-
-  while ((isalnum(lexer->current) || lexer->current == '_') &&
-         i < sizeof(buffer) - 1) {
+  while (lexer->current != '\0' && !isspace(lexer->current) &&
+         lexer->current != '<' && lexer->current != '>' &&
+         lexer->current != '|' && i < sizeof(buffer) - 1) {
     buffer[i++] = lexer->current;
     advance(lexer);
   }
-
   buffer[i] = '\0';
   return new_tok(IDENTIFIER, buffer, lexer->idx);
 }
@@ -71,29 +71,26 @@ Token* read_path(Lexer* lexer) {
 }
 
 Token* read_string(Lexer* lexer) {
-  char quote = lexer->current;  // ' or "
-  advance(lexer);               // skip opening quote
-
+  char quote = lexer->current;
+  advance(lexer);  // skip opening quote
   char buffer[1024];
   size_t i = 0;
 
   while (lexer->current != quote && !is_eof(lexer) && i < sizeof(buffer) - 1) {
-    if (lexer->current == '\\') {  // handle escape sequences
+    if (lexer->current == '\\') {  // escape
       advance(lexer);
       if (lexer->current == quote || lexer->current == '\\') {
         buffer[i++] = lexer->current;
         advance(lexer);
       } else {
-        buffer[i++] = '\\';  // keep unknown escapes as-is
+        buffer[i++] = '\\';
       }
     } else {
       buffer[i++] = lexer->current;
       advance(lexer);
     }
   }
-
   advance(lexer);  // skip closing quote
-
   buffer[i] = '\0';
   return new_tok(STRING, buffer, lexer->idx);
 }
@@ -111,6 +108,7 @@ Token* read_number(Lexer* lexer) {
   return new_tok(NUMBER, buffer, lexer->idx);
 }
 
+// Symbols: < > >> | &
 Token* read_symbol(Lexer* lexer) {
   size_t start = lexer->idx;
 
@@ -163,14 +161,12 @@ Token* read_symbol(Lexer* lexer) {
 
 Token* next_token(Lexer* lexer) {
   skip_whitespace(lexer);
-
   if (is_eof(lexer)) return new_tok(END_OF_FILE, "", lexer->idx);
 
   if (lexer->current == '\'' || lexer->current == '"')
     return read_string(lexer);
-  if (isalpha(lexer->current) || lexer->current == '/' || lexer->current == '.')
-    return read_path(lexer);
-  if (isdigit(lexer->current)) return read_number(lexer);
+  if (isalnum(lexer->current) || strchr("./-_", lexer->current))
+    return read_identifier(lexer);
 
   return read_symbol(lexer);
 }
