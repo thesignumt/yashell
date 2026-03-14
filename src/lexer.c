@@ -56,6 +56,7 @@ Token* read_identifier(Lexer* lexer) {
   return new_tok(IDENTIFIER, buffer, lexer->idx);
 }
 
+// STRING: quoted arguments
 Token* read_string(Lexer* lexer) {
   char quote = lexer->current;
   advance(lexer);  // skip opening quote
