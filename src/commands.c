@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "cache.h"
@@ -5,11 +7,11 @@
 #define INIT_CC_CAPACITY 64  // initial cmd cache capacity
 
 CmdResult cmd_echo(const char* args) {
-  CmdResult result;
-  result.data = NULL;
-  result.output = strdup(args ? args : "");
-  result.status = result.output ? STATUS_SUCCESS : STATUS_ERROR;
-  return result;
+  CmdResult res;
+  res.data = NULL;
+  res.output = strdup(args ? args : "");
+  res.status = res.output ? STATUS_SUCCESS : STATUS_ERROR;
+  return res;
 }
 
 CmdCache* cache_cmd_init(void) {
