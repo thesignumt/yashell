@@ -17,7 +17,7 @@ void add_arg(Cmd* cmd, const char* arg) {
 
   // allocate and copy the new string
   cmd->args[cmd->argc] = malloc(strlen(arg) + 1);
-  strcpy(cmd->args[cmd->argc], arg);
+  strcpy((char*)cmd->args[cmd->argc], arg);
 
   cmd->args[++cmd->argc] = NULL;  // keep NULL-terminated
 }
