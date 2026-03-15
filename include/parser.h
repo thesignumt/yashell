@@ -22,4 +22,4 @@ typedef struct {
 void add_cmd(Pipeline *pipeline, Cmd cmd);
 void add_arg(Cmd *cmd, const char *arg);
 
-Pipeline *Parse(TokenArr *tokens);
+Pipeline *Parse(Tokens *tokens);

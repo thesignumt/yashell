@@ -22,7 +22,7 @@ void add_arg(Cmd* cmd, const char* arg) {
   cmd->argv[++cmd->argc] = NULL;  // keep NULL-terminated
 }
 
-Pipeline* Parse(TokenArr* tokens) {
+Pipeline* Parse(Tokens* tokens) {
   Pipeline* pipeline = calloc(1, sizeof(Pipeline));
   Cmd cmd = {0};
 

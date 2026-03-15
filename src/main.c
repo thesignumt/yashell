@@ -29,7 +29,7 @@ int main(void) {
     if (nl) *nl = '\0';
     if (!*input) continue;
 
-    TokenArr tokens = Lex(input);
+    Tokens tokens = Lex(input);
     Pipeline *pipeline = Parse(&tokens);
     if (pipeline->count == 0) continue;
 

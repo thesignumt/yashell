@@ -120,7 +120,7 @@ Token* next_token(Lexer* lexer) {
   return read_symbol(lexer);
 }
 
-TokenArr Lex(const char* src) {
+Tokens Lex(const char* src) {
   Lexer lexer = init_lexer(src);
   size_t capacity = 8, count = 0;
   Token* tokens = malloc(capacity * sizeof(Token));

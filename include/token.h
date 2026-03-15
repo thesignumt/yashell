@@ -25,3 +25,4 @@ typedef struct {
   Token *tokens;
   size_t count;
 } TokenArr;
+} Tokens;
