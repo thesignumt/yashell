@@ -9,30 +9,29 @@ CmdResult cmd_echo(int argc, const char* args[]) {
   CmdResult res;
   res.data = NULL;
 
-  if (argc > 0) {
-    size_t len = 1;
-    for (int i = 0; i < argc; i++)
-      len += strlen(args[i]) + 1;  // +1 for space/null
-
-    char* out = malloc(len);
-    if (!out) {
-      res.status = STATUS_ERROR;
-      res.output = NULL;
-      return res;
-    }
-
-    out[0] = '\0';
-    for (int i = 0; i < argc; i++) {
-      strcat(out, args[i]);
-      if (i != argc - 1) strcat(out, " ");
-    }
-    res.output = out;
-    res.status = STATUS_SUCCESS;
-
-  } else {
+  if (argc == 0) {
     res.output = strdup("");
     res.status = res.output ? STATUS_SUCCESS : STATUS_ERROR;
+    return res;
   }
+  size_t len = 1;
+  for (int i = 0; i < argc; i++)
+    len += strlen(args[i]) + 1;  // +1 for space/null
+
+  char* out = malloc(len);
+  if (!out) {
+    res.status = STATUS_ERROR;
+    res.output = NULL;
+    return res;
+  }
+
+  out[0] = '\0';
+  for (int i = 0; i < argc; i++) {
+    strcat(out, args[i]);
+    if (i != argc - 1) strcat(out, " ");
+  }
+  res.output = out;
+  res.status = STATUS_SUCCESS;
   return res;
 }
 
