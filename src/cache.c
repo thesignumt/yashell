@@ -44,7 +44,8 @@ void cmd_cache_put(CmdCache* cache, const char* cmd_name, CmdFn f) {
   hashmap_put(cache->map, cmd_name, strlen(cmd_name), fp);
 }
 
-static CmdResult cmd_not_found(const char* argv) {
+static CmdResult cmd_not_found(int argc, char** argv) {
+  (void)argc;
   (void)argv;
   return (CmdResult){STATUS_CMD_NOT_FOUND, NULL, NULL};
 }
