@@ -5,8 +5,8 @@
 #include <stddef.h>
 
 typedef struct {
-  char *name;
-  char **args;
+  const char *name;
+  const char **args;
   int argc;
   char *stdin_redirect;
   char *stdout_redirect;
