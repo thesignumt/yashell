@@ -5,7 +5,7 @@
 #include "cache.h"
 #include "commands.h"
 
-CmdResult cmd_echo(int argc, char* argv[]) {
+CmdResult cmd_echo(int argc, char** argv) {
   CmdResult res;
   res.data = NULL;
 
@@ -35,7 +35,7 @@ CmdResult cmd_echo(int argc, char* argv[]) {
   return res;
 }
 
-CmdResult cmd_exit(int argc, char* argv[]) {
+CmdResult cmd_exit(int argc, char** argv) {
   (void)argc;
   (void)argv;
   return (CmdResult){STATUS_EXIT_CMD, NULL, NULL};
