@@ -12,7 +12,12 @@ Token* new_tok(TokenType t, const char* lexeme, size_t idx) {
   if (!tok) return NULL;
 
   tok->type = t;
-  tok->lexeme = strdup(lexeme);
   tok->idx = idx;
+
+  tok->lexeme = strdup(lexeme);
+  if (!tok->lexeme) {
+    free(tok);  // free allocated memory if strdup fails
+    return NULL;
+  }
   return tok;
 }
