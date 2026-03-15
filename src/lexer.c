@@ -122,27 +122,26 @@ Token* next_token(Lexer* lexer) {
 
 Tokens Lex(const char* src) {
   Lexer lexer = init_lexer(src);
-  size_t capacity = 8, count = 0;
-  Token* tokens = malloc(capacity * sizeof(Token));
+  Tokens toks = {0};
+  toks.capacity = 16;
+  toks.items = malloc(toks.capacity * sizeof(*toks.items));
 
   while (true) {
     Token* token = next_token(&lexer);
-    if (count >= capacity) {
-      capacity *= 2;
-      tokens = realloc(tokens, capacity * sizeof(Token));
+    if (toks.count >= toks.capacity) {
+      toks.capacity *= 2;
+      toks.items = realloc(toks.items, toks.capacity * sizeof(*toks.items));
     }
 
-    tokens[count].type = token->type;
-    tokens[count].lexeme = strdup(token->lexeme);
-    tokens[count].idx = token->idx;
-    count++;
+    toks.items[toks.count].idx = token->idx;
+    toks.items[toks.count].type = token->type;
+    toks.items[toks.count++].lexeme = strdup(token->lexeme);
 
     free(token->lexeme);
     free(token);
 
-    if (tokens[count - 1].type == END_OF_FILE) break;
+    if (toks.items[toks.count - 1].type == END_OF_FILE) break;
   }
 
-  TokenArr result = {tokens, count};
-  return result;
+  return toks;
 }
