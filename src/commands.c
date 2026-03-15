@@ -46,7 +46,12 @@ CmdResult cmd_exit(int argc, char** argv) {
   return (CmdResult){STATUS_EXIT_CMD, NULL, NULL};
 }
 
-CmdCache* cache_cmd_init(void) {
+/**
+ * @brief new commands cache/registry
+ *
+ * @return freshly made cmd cache
+ */
+CmdCache* new_cc(void) {
   CmdCache* cache = cmd_cache_init(INIT_CC_CAPACITY);
 
   static struct {

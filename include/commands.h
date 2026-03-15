@@ -22,4 +22,4 @@ typedef CmdResult (*CmdFn)(int argc, char *argv[]);
 CmdResult cmd_echo(int argc, char *argv[]);
 CmdResult cmd_exit(int argc, char *argv[]);
 
-CmdCache *cache_cmd_init(void);
+CmdCache *new_cc(void);

@@ -3,8 +3,11 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
+#include "cache.h"
+#include "commands.h"
 #include "lexer.h"
 #include "parser.h"
 #include "token.h"
@@ -13,7 +16,7 @@
 
 int main(void) {
   bool yashell_running = true;
-  char input[2049];
+  CmdCache *cc = new_cc();
 
   char input[INPUT_SIZE];
   while (yashell_running) {
@@ -31,8 +34,25 @@ int main(void) {
     if (pipeline->count == 0) continue;
 
     Cmd *cmd0 = &pipeline->cmds[0];
-    puts(cmd0->name);
+    CmdFn cmd_fn = cmd_cache_get(cc, cmd0->name);
     CmdResult res = cmd_fn(cmd0->argc, cmd0->argv);
+
+    switch (res.status) {
+      case STATUS_SUCCESS:
+        if (res.output) printf("%s\n", res.output);
+        break;
+      case STATUS_ERROR:
+        fputs("error has taken place! (⊙_⊙)？", stderr);
+        continue;
+      case STATUS_EXIT_CMD:
+        cmd_cache_free(cc);
+        yashell_running = false;
+        break;
+      case STATUS_CMD_NOT_FOUND:
+        fprintf(stderr, "Command not found: %s\n", cmd0->name);
+        continue;
+    }
+    free(res.output);
   }
 
   return 0;
