@@ -6,7 +6,7 @@
 
 typedef struct {
   char *name;
-  char **args;
+  char **argv;
   int argc;
   char *stdin_redirect;
   char *stdout_redirect;

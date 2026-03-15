@@ -17,9 +17,9 @@ typedef struct {
   void *data;       // optional pointer to extra data (if needed)
 } CmdResult;
 
-typedef CmdResult (*CmdFn)(int argc, const char *args[]);
+typedef CmdResult (*CmdFn)(int argc, char *argv[]);
 
-CmdResult cmd_echo(int argc, const char *args[]);
-CmdResult cmd_exit(int argc, const char *args[]);
+CmdResult cmd_echo(int argc, char *argv[]);
+CmdResult cmd_exit(int argc, char *argv[]);
 
 CmdCache *cache_cmd_init(void);

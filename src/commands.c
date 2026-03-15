@@ -5,7 +5,7 @@
 #include "cache.h"
 #include "commands.h"
 
-CmdResult cmd_echo(int argc, const char* args[]) {
+CmdResult cmd_echo(int argc, char* argv[]) {
   CmdResult res;
   res.data = NULL;
 
@@ -16,7 +16,7 @@ CmdResult cmd_echo(int argc, const char* args[]) {
   }
   size_t len = 1;
   for (int i = 0; i < argc; i++)
-    len += strlen(args[i]) + 1;  // +1 for space/null
+    len += strlen(argv[i]) + 1;  // +1 for space/null
 
   char* out = malloc(len);
   if (!out) {
@@ -27,7 +27,7 @@ CmdResult cmd_echo(int argc, const char* args[]) {
 
   out[0] = '\0';
   for (int i = 0; i < argc; i++) {
-    strcat(out, args[i]);
+    strcat(out, argv[i]);
     if (i != argc - 1) strcat(out, " ");
   }
   res.output = out;
@@ -35,9 +35,9 @@ CmdResult cmd_echo(int argc, const char* args[]) {
   return res;
 }
 
-CmdResult cmd_exit(int argc, const char* args[]) {
+CmdResult cmd_exit(int argc, char* argv[]) {
   (void)argc;
-  (void)args;
+  (void)argv;
   return (CmdResult){STATUS_EXIT_CMD, NULL, NULL};
 }
 

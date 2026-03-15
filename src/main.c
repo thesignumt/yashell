@@ -32,6 +32,7 @@ int main(void) {
 
     Cmd *cmd0 = &pipeline->cmds[0];
     puts(cmd0->name);
+    CmdResult res = cmd_fn(cmd0->argc, cmd0->argv);
   }
 
   return 0;
