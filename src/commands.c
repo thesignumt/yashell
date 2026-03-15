@@ -25,11 +25,17 @@ CmdResult cmd_echo(int argc, char** argv) {
     return res;
   }
 
-  out[0] = '\0';
+  char* p = out;
   for (int i = 0; i < argc; i++) {
-    strcat(out, argv[i]);
-    if (i != argc - 1) strcat(out, " ");
+    size_t l = strlen(argv[i]);
+    memcpy(p, argv[i], l);
+    p += l;
+    if (i != argc - 1) {
+      *p++ = ' ';
+    }
   }
+  *p = '\0';
+
   res.output = out;
   res.status = STATUS_SUCCESS;
   return res;
