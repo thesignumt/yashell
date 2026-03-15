@@ -24,5 +24,5 @@ Token *new_tok(TokenType t, const char *lexeme, size_t idx);
 typedef struct {
   Token *items;
   size_t count;
-} TokenArr;
+  size_t capacity;
 } Tokens;
