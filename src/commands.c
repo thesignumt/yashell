@@ -14,9 +14,10 @@ CmdResult cmd_echo(int argc, char** argv) {
     res.status = res.output ? STATUS_SUCCESS : STATUS_ERROR;
     return res;
   }
-  size_t len = 1;
-  for (int i = 0; i < argc; i++)
-    len += strlen(argv[i]) + 1;  // +1 for space/null
+
+  size_t len = 0;
+  for (int i = 0; i < argc; i++) len += strlen(argv[i]);
+  len += (argc > 1 ? argc - 1 : 0) + 1;  // spaces + null terminator
 
   char* out = malloc(len);
   if (!out) {
@@ -30,9 +31,7 @@ CmdResult cmd_echo(int argc, char** argv) {
     size_t l = strlen(argv[i]);
     memcpy(p, argv[i], l);
     p += l;
-    if (i != argc - 1) {
-      *p++ = ' ';
-    }
+    if (i < argc - 1) *p++ = ' ';
   }
   *p = '\0';
 
