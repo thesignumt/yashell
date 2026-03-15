@@ -28,21 +28,21 @@ Pipeline* Parse(Tokens* tokens) {
 
   size_t i = 0;
   while (i < tokens->count) {
-    Token token = tokens->tokens[i];
+    Token token = tokens->items[i];
 
     if (token.type == PIPE) {
       add_cmd(pipeline, cmd);
       cmd = (Cmd){0};
     } else if (token.type == STDIN_REDIRECT) {
       if (++i < tokens->count)
-        cmd.stdin_redirect = strdup(tokens->tokens[i].lexeme);
+        cmd.stdin_redirect = strdup(tokens->items[i].lexeme);
     } else if (token.type == STDOUT_REDIRECT) {
       if (++i < tokens->count)
-        cmd.stdout_redirect = strdup(tokens->tokens[i].lexeme);
+        cmd.stdout_redirect = strdup(tokens->items[i].lexeme);
       cmd.append_stdout = false;
     } else if (token.type == REDIRECT_APPEND) {
       if (++i < tokens->count)
-        cmd.stdout_redirect = strdup(tokens->tokens[i].lexeme);
+        cmd.stdout_redirect = strdup(tokens->items[i].lexeme);
       cmd.append_stdout = true;
     } else if (token.type == BACKGROUND) {
       pipeline->run_in_bg = true;

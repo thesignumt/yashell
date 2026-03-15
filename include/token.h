@@ -22,7 +22,7 @@ typedef struct {
 Token *new_tok(TokenType t, const char *lexeme, size_t idx);
 
 typedef struct {
-  Token *tokens;
+  Token *items;
   size_t count;
 } TokenArr;
 } Tokens;
