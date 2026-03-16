@@ -71,8 +71,8 @@ CmdResult cmd_echo(int argc, char** argv) {
   }
   *p = '\0';
 
-  res.output = out;
   res.status = STATUS_SUCCESS;
+  res.output = out;
   return res;
 }
 
