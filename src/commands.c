@@ -32,7 +32,7 @@ CmdResult cmd_cwd(int argc, char** argv) {
   } else {
     free(cwd);
     res.status = STATUS_ERROR;
-    res.output = strerror(errno);
+    res.output = strdup(strerror(errno));
   }
   return res;
 }
