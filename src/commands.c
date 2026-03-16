@@ -45,7 +45,7 @@ CmdResult cmd_echo(int argc, char** argv) {
 
   size_t len = 0;
   for (int i = 0; i < argc; i++) len += strlen(argv[i]);
-  len += (argc > 1 ? argc - 1 : 0) + 1;  // spaces + null terminator
+  len += (argc > 1 ? argc - 1 : 0) + 1;
 
   char* out = malloc(len);
   if (!out) {
