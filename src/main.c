@@ -31,7 +31,7 @@ int main(void) {
 
     Tokens tokens = Lex(input);
     Pipeline *pipeline = Parse(&tokens);
-    if (pipeline->count == 0) continue;
+    if (!pipeline || pipeline->count == 0) continue;
 
     Cmd *cmd0 = &pipeline->cmds[0];
     CmdFn cmd_fn = cmd_cache_get(cc, cmd0->name);
