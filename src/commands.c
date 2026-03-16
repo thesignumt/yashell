@@ -1,9 +1,41 @@
+// TODO: make aliases (including pwd and more)
+
+#include <errno.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef _WIN32
+#include <direct.h>  // for _getcwd
+#define getcwd _getcwd
+#else
+#include <limits.h>
+#include <unistd.h>  // for getcwd
+#endif
+
 #include "cache.h"
 #include "commands.h"
+
+CmdResult cmd_cwd(int argc, char** argv) {
+  (void)argc;
+  (void)argv;
+
+  CmdResult res;
+  res.data = NULL;
+
+  char* cwd = malloc(PATH_MAX);
+  if (!cwd) return (CmdResult){STATUS_ERROR, "malloc failed", NULL};
+
+  if (getcwd(cwd, PATH_MAX) != NULL) {
+    res.output = cwd;
+    res.status = STATUS_SUCCESS;
+  } else {
+    free(cwd);
+    res.output = strerror(errno);
+    res.status = STATUS_ERROR;
+  }
+  return res;
+}
 
 CmdResult cmd_echo(int argc, char** argv) {
   CmdResult res;
@@ -58,6 +90,8 @@ CmdCache* new_cc(void) {
     const char* name;
     CmdFn f;
   } cmds[] = {
+      {"cwd", cmd_cwd},
+      {"pwd", cmd_cwd},  // alias
       {"echo", cmd_echo},
       {"exit", cmd_exit},
   };
