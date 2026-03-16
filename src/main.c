@@ -39,18 +39,18 @@ int main(void) {
 
     switch (res.status) {
       case STATUS_SUCCESS:
-        if (res.output) printf("%s\n", res.output);
+        if (res.output) puts(res.output);
         break;
       case STATUS_ERROR:
-        fputs("error has taken place! (⊙_⊙)？", stderr);
-        continue;
+        if (res.output) fprintf(stderr, "Error: %s\n", res.output);
+        break;
       case STATUS_EXIT_CMD:
         cmd_cache_free(cc);
         yashell_running = false;
         break;
       case STATUS_CMD_NOT_FOUND:
         fprintf(stderr, "Command not found: %s\n", cmd0->name);
-        continue;
+        break;
     }
     if (res.output) free(res.output);
   }
