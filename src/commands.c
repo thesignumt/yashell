@@ -27,12 +27,12 @@ CmdResult cmd_cwd(int argc, char** argv) {
   if (!cwd) return (CmdResult){STATUS_ERROR, "malloc failed", NULL};
 
   if (getcwd(cwd, PATH_MAX) != NULL) {
-    res.output = cwd;
     res.status = STATUS_SUCCESS;
+    res.output = cwd;
   } else {
     free(cwd);
-    res.output = strerror(errno);
     res.status = STATUS_ERROR;
+    res.output = strerror(errno);
   }
   return res;
 }
