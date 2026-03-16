@@ -15,11 +15,11 @@
 #define INPUT_SIZE 2048
 
 int main(void) {
-  bool yashell_running = true;
+  bool running = true;
   CmdCache *cc = new_cc();
 
   char input[INPUT_SIZE];
-  while (yashell_running) {
+  while (running) {
     printf(">>> ");
     if (!fgets(input, sizeof(input), stdin)) {
       break;
@@ -46,7 +46,7 @@ int main(void) {
         break;
       case STATUS_EXIT_CMD:
         cmd_cache_free(cc);
-        yashell_running = false;
+        running = false;
         break;
       case STATUS_CMD_NOT_FOUND:
         fprintf(stderr, "Command not found: %s\n", cmd0->name);
