@@ -41,11 +41,7 @@ CmdResult cmd_echo(int argc, char** argv) {
   CmdResult res;
   res.data = NULL;
 
-  if (argc == 0) {
-    res.status = res.output ? STATUS_SUCCESS : STATUS_ERROR;
-    res.output = strdup("");
-    return res;
-  }
+  if (argc == 0) return (CmdResult){STATUS_SUCCESS, strdup(""), NULL};
 
   size_t len = 0;
   for (int i = 0; i < argc; i++) len += strlen(argv[i]);
