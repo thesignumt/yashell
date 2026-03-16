@@ -128,6 +128,7 @@ Tokens Lex(const char* src) {
 
   while (true) {
     Token* token = next_token(&lexer);
+    if (!token) continue;
     if (toks.count >= toks.capacity) {
       toks.capacity *= 2;
       toks.items = realloc(toks.items, toks.capacity * sizeof(*toks.items));
