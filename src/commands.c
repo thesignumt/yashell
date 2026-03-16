@@ -41,7 +41,15 @@ CmdResult cmd_echo(int argc, char** argv) {
   CmdResult res;
   res.data = NULL;
 
-  if (argc == 0) return (CmdResult){STATUS_SUCCESS, strdup(""), NULL};
+  if (argc == 0) {
+    res.status = STATUS_SUCCESS;
+    res.output = strdup("");
+    if (!res.output) {
+      res.status = STATUS_ERROR;
+      res.output = strdup("malloc failed");
+    }
+    return res;
+  }
 
   size_t len = 0;
   for (int i = 0; i < argc; i++) len += strlen(argv[i]);
@@ -50,7 +58,7 @@ CmdResult cmd_echo(int argc, char** argv) {
   char* out = malloc(len);
   if (!out) {
     res.status = STATUS_ERROR;
-    res.output = NULL;
+    res.output = strdup("malloc failed");
     return res;
   }
 
