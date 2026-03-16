@@ -52,7 +52,7 @@ int main(void) {
         fprintf(stderr, "Command not found: %s\n", cmd0->name);
         continue;
     }
-    free(res.output);
+    if (res.output) free(res.output);
   }
 
   return 0;
