@@ -22,6 +22,32 @@ void add_arg(Cmd* cmd, const char* arg) {
   cmd->argv[++cmd->argc] = NULL;  // keep NULL-terminated
 }
 
+void free_cmd(Cmd* cmd) {
+  if (!cmd) return;
+
+  free(cmd->name);
+
+  if (cmd->argv) {
+    for (int i = 0; i < cmd->argc; i++) {
+      free(cmd->argv[i]);
+    }
+    free(cmd->argv);
+  }
+
+  free(cmd->stdin_redirect);
+  free(cmd->stdout_redirect);
+}
+void free_pipeline(Pipeline* pipeline) {
+  if (!pipeline) return;
+
+  for (int i = 0; i < pipeline->count; i++) {
+    free_cmd(&pipeline->cmds[i]);
+  }
+
+  free(pipeline->cmds);
+  free(pipeline);
+}
+
 Pipeline* Parse(Tokens* tokens) {
   Pipeline* pipeline = calloc(1, sizeof(Pipeline));
   Cmd cmd = {0};
