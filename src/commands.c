@@ -10,8 +10,8 @@ CmdResult cmd_echo(int argc, char** argv) {
   res.data = NULL;
 
   if (argc == 0) {
-    res.output = strdup("");
     res.status = res.output ? STATUS_SUCCESS : STATUS_ERROR;
+    res.output = strdup("");
     return res;
   }
 
