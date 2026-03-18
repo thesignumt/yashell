@@ -35,7 +35,6 @@ int main(void) {
     if (!pipeline || pipeline->count == 0) continue;
 
     Cmd *cmd0 = &pipeline->cmds[0];
-    free_pipeline(pipeline);
     CmdFn cmd_fn = cmd_cache_get(cc, cmd0->name);
     CmdResult res = cmd_fn(cmd0->argc, cmd0->argv);
 
@@ -54,7 +53,10 @@ int main(void) {
         fprintf(stderr, "Command not found: %s\n", cmd0->name);
         break;
     }
+
+    // free memory
     if (res.output) free(res.output);
+    free_pipeline(pipeline);
   }
 
   return 0;
