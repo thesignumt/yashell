@@ -15,9 +15,7 @@ int main(void) {
   char input[INPUT_SIZE];
   for (CmdCache *cc = new_cc();;) {
     printf("$ ");
-    if (!fgets(input, sizeof(input), stdin)) {
-      break;
-    }
+    if (!fgets(input, sizeof(input), stdin)) break;
 
     char *p = input;
     while (*p && *p != '\n') p++;
