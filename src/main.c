@@ -21,6 +21,7 @@ int main(void) {
   char input[INPUT_SIZE];
   while (running) {
     printf(">>> ");
+    printf("$ ");
     if (!fgets(input, sizeof(input), stdin)) {
       break;
     }
