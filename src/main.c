@@ -25,8 +25,9 @@ int main(void) {
       break;
     }
 
-    char *nl = strchr(input, '\n');
-    if (nl) *nl = '\0';
+    char *p = input;
+    while (*p && *p != '\n') p++;
+    *p = '\0';
     if (!*input) continue;
 
     Tokens tokens = Lex(input);
