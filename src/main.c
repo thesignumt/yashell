@@ -47,7 +47,7 @@ int main(void) {
         break;
       case STATUS_EXIT_CMD:
         cmd_cache_free(cc);
-        break;
+        return 0;
       case STATUS_CMD_NOT_FOUND:
         fprintf(stderr, "Command not found: %s\n", cmd0->name);
         break;
