@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "cache.h"
 #include "commands.h"
@@ -16,6 +17,12 @@ int main(void) {
   for (CmdCache *cc = new_cc();;) {
     printf("$ ");
     if (!fgets(input, sizeof(input), stdin)) break;
+
+    // flush remaining input if line too long
+    if (strchr(input, '\n') == NULL) {
+      int c;
+      while ((c = getchar()) != '\n' && c != EOF);  // flush
+    }
 
     char *p = input;
     while (*p && *p != '\n') p++;
