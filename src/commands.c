@@ -1,17 +1,11 @@
 // TODO: make aliases (including pwd and more)
 
+#include <direct.h>  // for _getcwd
 #include <errno.h>
+#include <limits.h>  // for _MAX_PATH
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-
-#ifdef _WIN32
-#include <direct.h>  // for _getcwd
-#define getcwd _getcwd
-#else
-#include <limits.h>
-#include <unistd.h>  // for getcwd
-#endif
 
 #include "cache.h"
 #include "commands.h"
@@ -23,10 +17,10 @@ CmdResult cmd_cwd(int argc, char** argv) {
   CmdResult res;
   res.data = NULL;
 
-  char* cwd = malloc(PATH_MAX);
+  char* cwd = malloc(_MAX_PATH);
   if (!cwd) return (CmdResult){STATUS_ERROR, "malloc failed", NULL};
 
-  if (getcwd(cwd, PATH_MAX) != NULL) {
+  if (_getcwd(cwd, _MAX_PATH) != NULL) {
     res.status = STATUS_SUCCESS;
     res.output = cwd;
   } else {
