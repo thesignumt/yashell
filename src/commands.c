@@ -76,6 +76,17 @@ CmdResult cmd_exit(int argc, char** argv) {
   return (CmdResult){STATUS_EXIT_CMD, NULL, NULL};
 }
 
+CmdResult cmd_true(int argc, char** argv) {
+  (void)argc;
+  (void)argv;
+  return (CmdResult){STATUS_SUCCESS, NULL, NULL};
+}
+CmdResult cmd_false(int argc, char** argv) {
+  (void)argc;
+  (void)argv;
+  return (CmdResult){STATUS_ERROR, NULL, NULL};
+}
+
 /**
  * @brief new commands cache/registry
  *
@@ -87,12 +98,9 @@ CmdCache* new_cc(void) {
   static struct {
     const char* name;
     CmdFn f;
-  } cmds[] = {
-      {"cwd", cmd_cwd},
-      {"pwd", cmd_cwd},  // alias
-      {"echo", cmd_echo},
-      {"exit", cmd_exit},
-  };
+  } cmds[] = {{"cwd", cmd_cwd},   {"pwd", cmd_cwd},  // alias
+              {"echo", cmd_echo}, {"exit", cmd_exit},
+              {"true", cmd_true}, {"false", cmd_false}};
 
   for (size_t i = 0; i < sizeof(cmds) / sizeof(cmds[0]); i++)
     cmd_cache_put(cache, cmds[i].name, cmds[i].f);
