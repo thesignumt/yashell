@@ -9,6 +9,7 @@ typedef enum {
   STATUS_ERROR = 1,
   STATUS_EXIT_CMD = 2,
   STATUS_CMD_NOT_FOUND = 3
+  // TODO: STATUS_CTRL_C = 4
 } CmdStatus;
 
 typedef struct {
