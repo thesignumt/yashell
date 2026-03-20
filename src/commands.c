@@ -12,6 +12,8 @@
 #include "cache.h"
 #include "commands.h"
 
+#define DATE_BUFFER 100
+
 CmdResult cmd_clear(int argc, char** argv) {
   (void)argc;
   (void)argv;
@@ -48,7 +50,7 @@ CmdResult cmd_date(int argc, char** argv) {
 
   time_t now;
   struct tm* t;
-  char buffer[100];
+  char buffer[DATE_BUFFER];
 
   time(&now);
   t = localtime(&now);
