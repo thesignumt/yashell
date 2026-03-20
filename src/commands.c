@@ -95,6 +95,24 @@ CmdResult cmd_false(int argc, char** argv) {
   return (CmdResult){STATUS_ERROR, NULL, NULL};
 }
 
+CmdResult cmd_whoami(int argc, char** argv) {
+  (void)argc;
+  (void)argv;
+  CmdResult res = {0};
+
+  char* user = getenv("USER");           // Linux/macOS
+  if (!user) user = getenv("USERNAME");  // Windows fallback
+
+  if (user) {
+    res.status = STATUS_SUCCESS;
+    res.output = strdup(user);
+  } else {
+    res.status = STATUS_ERROR;
+    res.output = strdup("unknown username");
+  }
+  return res;
+}
+
 /**
  * @brief new commands cache/registry
  *
@@ -106,10 +124,9 @@ CmdCache* new_cc(void) {
   static struct {
     const char* name;
     CmdFn f;
-  } cmds[] = {{"clear", cmd_clear}, {"cls", cmd_clear},
-              {"cwd", cmd_cwd},     {"pwd", cmd_cwd},  // alias
-              {"echo", cmd_echo},   {"exit", cmd_exit},
-              {"false", cmd_false}, {"true", cmd_true}};
+  } cmds[] = {{"clear", cmd_clear}, {"cls", cmd_clear}, {"cwd", cmd_cwd},
+              {"pwd", cmd_cwd},     {"echo", cmd_echo}, {"exit", cmd_exit},
+              {"false", cmd_false}, {"true", cmd_true}, {"whoami", cmd_whoami}};
 
   for (size_t i = 0; i < sizeof(cmds) / sizeof(cmds[0]); i++)
     cmd_cache_put(cache, cmds[i].name, cmds[i].f);
