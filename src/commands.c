@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "cache.h"
 #include "commands.h"
@@ -36,6 +37,26 @@ CmdResult cmd_cwd(int argc, char** argv) {
     res.status = STATUS_ERROR;
     res.output = strdup(strerror(errno));
   }
+  return res;
+}
+
+CmdResult cmd_date(int argc, char** argv) {
+  (void)argc;
+  (void)argv;
+  CmdResult res;
+  res.data = NULL;
+
+  time_t now;
+  struct tm* t;
+  char buffer[100];
+
+  time(&now);
+  t = localtime(&now);
+
+  strftime(buffer, sizeof(buffer), "%a %b %d %H:%M:%S %Z %Y", t);
+
+  res.output = strdup(buffer);
+
   return res;
 }
 
@@ -124,9 +145,10 @@ CmdCache* new_cc(void) {
   static struct {
     const char* name;
     CmdFn f;
-  } cmds[] = {{"clear", cmd_clear}, {"cls", cmd_clear}, {"cwd", cmd_cwd},
-              {"pwd", cmd_cwd},     {"echo", cmd_echo}, {"exit", cmd_exit},
-              {"false", cmd_false}, {"true", cmd_true}, {"whoami", cmd_whoami}};
+  } cmds[] = {{"clear", cmd_clear},  {"cls", cmd_clear},   {"cwd", cmd_cwd},
+              {"date", cmd_date},    {"pwd", cmd_cwd},     {"echo", cmd_echo},
+              {"exit", cmd_exit},    {"false", cmd_false}, {"true", cmd_true},
+              {"whoami", cmd_whoami}};
 
   for (size_t i = 0; i < sizeof(cmds) / sizeof(cmds[0]); i++)
     cmd_cache_put(cache, cmds[i].name, cmds[i].f);
