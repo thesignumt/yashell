@@ -4,11 +4,19 @@
 #include <errno.h>
 #include <limits.h>  // for _MAX_PATH
 #include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "cache.h"
 #include "commands.h"
+
+CmdResult cmd_clear(int argc, char** argv) {
+  (void)argc;
+  (void)argv;
+  printf("\033[H\033[J");
+  return (CmdResult){STATUS_SUCCESS, NULL, NULL};
+}
 
 CmdResult cmd_cwd(int argc, char** argv) {
   (void)argc;
@@ -98,9 +106,10 @@ CmdCache* new_cc(void) {
   static struct {
     const char* name;
     CmdFn f;
-  } cmds[] = {{"cwd", cmd_cwd},   {"pwd", cmd_cwd},  // alias
-              {"echo", cmd_echo}, {"exit", cmd_exit},
-              {"true", cmd_true}, {"false", cmd_false}};
+  } cmds[] = {{"clear", cmd_clear}, {"cls", cmd_clear},
+              {"cwd", cmd_cwd},     {"pwd", cmd_cwd},  // alias
+              {"echo", cmd_echo},   {"exit", cmd_exit},
+              {"false", cmd_false}, {"true", cmd_true}};
 
   for (size_t i = 0; i < sizeof(cmds) / sizeof(cmds[0]); i++)
     cmd_cache_put(cache, cmds[i].name, cmds[i].f);
