@@ -44,13 +44,12 @@ Token read_identifier(Lexer* lexer) {
          lexer->current != '|') {
     if (len + 1 >= cap) {
       cap *= 2;
-      // char* tmp = realloc(buffer, cap);
-      // if (!tmp) {
-      //   free(buffer);
-      //   exit(1);
-      // }
-      // buffer = tmp;
-      buffer = realloc(buffer, cap);
+      char* tmp = realloc(buffer, cap);
+      if (!tmp) {
+        free(buffer);
+        exit(1);
+      }
+      buffer = tmp;
     }
 
     buffer[len++] = lexer->current;
