@@ -42,6 +42,7 @@ int main(void) {
       printf("%s $ ", cwd);
     else
       fprintf(stderr, "Unable to get current directory. $ ");
+    fflush(stdout);
 
     char *input = read_input();
     if (!input) break;
