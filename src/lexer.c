@@ -1,7 +1,5 @@
 #include <ctype.h>
-#include <stdbool.h>
 #include <stddef.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -12,83 +10,99 @@ Lexer init_lexer(const char* input) {
   Lexer lexer;
   lexer.input = input;
   lexer.idx = 0;
+  lexer.len = strlen(input);
   lexer.current = input[0];
   return lexer;
 }
 
 void advance(Lexer* lexer) {
-  lexer->idx += 1;
-  lexer->current = lexer->input[lexer->idx];
+  if (lexer->idx < lexer->len) lexer->idx++;
+  lexer->current = (lexer->idx < lexer->len) ? lexer->input[lexer->idx] : '\0';
 }
 void advancen(Lexer* lexer, size_t n) {
-  size_t remaining =
-      strlen(lexer->input + lexer->idx);        // chars left including current
-  size_t step = n < remaining ? n : remaining;  // don't go past end
-  lexer->idx += step;
+  lexer->idx = (lexer->idx + n < lexer->len) ? lexer->idx + n : lexer->len;
   lexer->current = lexer->input[lexer->idx];
 }
 
 char peek(Lexer lexer) {
-  return lexer.input[lexer.idx + 1] ? lexer.input[lexer.idx + 1] : '\0';
+  return (lexer.idx + 1 < lexer.len) ? lexer.input[lexer.idx + 1] : '\0';
 }
-char peekn(Lexer lexer, size_t n) {
-  size_t idx = lexer.idx + n;
-  return lexer.input[idx] ? lexer.input[idx] : '\0';
-}
-
-bool is_eof(Lexer* lexer) { return lexer->current == '\0'; }
 
 void skip_whitespace(Lexer* lexer) {
   while (isspace(lexer->current)) advance(lexer);
 }
 
 // IDENTIFIER: command names, args, paths
-Token* read_identifier(Lexer* lexer) {
-  char buffer[1024];
-  size_t i = 0;
-  while (lexer->current != '\0' && !isspace(lexer->current) &&
+Token read_identifier(Lexer* lexer) {
+  size_t cap = 32;
+  size_t len = 0;
+  char* buffer = malloc(cap);
+  // if (!buffer) exit(1);
+
+  while (lexer->current && !isspace((unsigned char)lexer->current) &&
          lexer->current != '<' && lexer->current != '>' &&
-         lexer->current != '|' && i < sizeof(buffer) - 1) {
-    buffer[i++] = lexer->current;
+         lexer->current != '|') {
+    if (len + 1 >= cap) {
+      cap *= 2;
+      // char* tmp = realloc(buffer, cap);
+      // if (!tmp) {
+      //   free(buffer);
+      //   exit(1);
+      // }
+      // buffer = tmp;
+      buffer = realloc(buffer, cap);
+    }
+
+    buffer[len++] = lexer->current;
     advance(lexer);
   }
-  buffer[i] = '\0';
-  return new_tok(IDENTIFIER, buffer, lexer->idx);
+
+  buffer[len] = '\0';
+
+  Token tok = new_tok(IDENTIFIER, buffer, lexer->idx);
+  free(buffer);  // safe if new_tok copies string
+  return tok;
 }
 
 // STRING: quoted arguments
-Token* read_string(Lexer* lexer) {
+Token read_string(Lexer* lexer) {
   char quote = lexer->current;
-  advance(lexer);  // skip opening quote
+  advance(lexer);
+
   char buffer[1024];
   size_t i = 0;
 
   while (lexer->current != quote && !is_eof(lexer) && i < sizeof(buffer) - 1) {
-    if (lexer->current == '\\') {  // escape
+    if (lexer->current == '\\') {
       advance(lexer);
       if (lexer->current == quote || lexer->current == '\\') {
-        buffer[i++] = lexer->current;
+        buffer[i] = lexer->current;
         advance(lexer);
-      } else {
-        buffer[i++] = '\\';
-      }
+      } else
+        buffer[i] = '\\';
+
     } else {
-      buffer[i++] = lexer->current;
+      buffer[i] = lexer->current;
       advance(lexer);
     }
+    i++;
   }
-  advance(lexer);  // skip closing quote
+
+  if (lexer->current == quote) advance(lexer);
   buffer[i] = '\0';
+
   return new_tok(STRING, buffer, lexer->idx);
 }
 
 // Symbols: < > >> | &
-Token* read_symbol(Lexer* lexer) {
+Token read_symbol(Lexer* lexer) {
   size_t start = lexer->idx;
+
   switch (lexer->current) {
     case '<':
       advance(lexer);
       return new_tok(STDIN_REDIRECT, "<", start);
+
     case '>':
       if (peek(*lexer) == '>') {
         advancen(lexer, 2);
@@ -96,26 +110,30 @@ Token* read_symbol(Lexer* lexer) {
       }
       advance(lexer);
       return new_tok(STDOUT_REDIRECT, ">", start);
+
     case '|':
       advance(lexer);
       return new_tok(PIPE, "|", start);
+
     case '&':
       advance(lexer);
       return new_tok(BACKGROUND, "&", start);
+
     default:
       advance(lexer);
-      return NULL;  // unknown symbol
+      return new_tok(UNKNOWN, (char[]){lexer->current, '\0'}, start);
   }
 }
 
-Token* next_token(Lexer* lexer) {
+Token next_token(Lexer* lexer) {
   skip_whitespace(lexer);
+
   if (is_eof(lexer)) return new_tok(END_OF_FILE, "", lexer->idx);
 
   if (lexer->current == '\'' || lexer->current == '"')
     return read_string(lexer);
-  if (isalnum(lexer->current) || strchr("./-_", lexer->current))
-    return read_identifier(lexer);
+
+  if (is_ident_char(lexer->current)) return read_identifier(lexer);
 
   return read_symbol(lexer);
 }
@@ -127,19 +145,15 @@ Tokens Lex(const char* src) {
   toks.items = malloc(toks.capacity * sizeof(*toks.items));
 
   while (true) {
-    Token* token = next_token(&lexer);
-    if (!token) continue;
+    Token token = next_token(&lexer);
     if (toks.count >= toks.capacity) {
       toks.capacity *= 2;
       toks.items = realloc(toks.items, toks.capacity * sizeof(*toks.items));
     }
 
-    toks.items[toks.count].idx = token->idx;
-    toks.items[toks.count].type = token->type;
-    toks.items[toks.count++].lexeme = strdup(token->lexeme);
-
-    free(token->lexeme);
-    free(token);
+    toks.items[toks.count].idx = token.idx;
+    toks.items[toks.count].type = token.type;
+    toks.items[toks.count++].lexeme = token.lexeme;
 
     if (toks.items[toks.count - 1].type == END_OF_FILE) break;
   }
