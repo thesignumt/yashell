@@ -1,5 +1,7 @@
 // TODO: support multiline prompt
 
+#include <direct.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,8 +16,16 @@
 
 int main(void) {
   char input[INPUT_SIZE];
+  char cwd[PATH_MAX];
+
   for (CmdCache *cc = new_cc();;) {
-    printf("$ ");
+    if (getcwd(cwd, sizeof(cwd)) != NULL) {
+      printf("%s $ ", cwd);
+    } else {
+      perror("getcwd");
+      printf("$ ");
+    }
+
     if (!fgets(input, sizeof(input), stdin)) break;
 
     // flush remaining input if line too long
