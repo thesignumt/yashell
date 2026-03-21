@@ -1,5 +1,6 @@
 #include <ctype.h>
 #include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -69,7 +70,7 @@ Token read_string(Lexer* lexer) {
   char buffer[1024];
   size_t i = 0;
 
-  while (lexer->current != quote && !is_eof(lexer->current) &&
+  while (lexer->current != quote && !is_eof_char(lexer->current) &&
          i < sizeof(buffer) - 1) {
     if (lexer->current == '\\') {
       advance(lexer);
@@ -95,8 +96,9 @@ Token read_string(Lexer* lexer) {
 // Symbols: < > >> | &
 Token read_symbol(Lexer* lexer) {
   size_t start = lexer->idx;
+  char cur = lexer->current;
 
-  switch (lexer->current) {
+  switch (cur) {
     case '<':
       advance(lexer);
       return new_tok(STDIN_REDIRECT, "<", start);
@@ -119,14 +121,14 @@ Token read_symbol(Lexer* lexer) {
 
     default:
       advance(lexer);
-      return new_tok(UNKNOWN, (char[]){lexer->current, '\0'}, start);
+      return new_tok(UNKNOWN, (char[]){cur, '\0'}, start);  // use saved 'cur'
   }
 }
 
 Token next_token(Lexer* lexer) {
   skip_whitespace(lexer);
 
-  if (is_eof(lexer->current)) return new_tok(END_OF_FILE, "", lexer->idx);
+  if (is_eof_char(lexer->current)) return new_tok(END_OF_FILE, "", lexer->idx);
 
   if (lexer->current == '\'' || lexer->current == '"')
     return read_string(lexer);
@@ -151,7 +153,7 @@ Tokens Lex(const char* src) {
 
     toks.items[toks.count++] = token;
 
-    if (is_eof(toks.items[toks.count - 1].type)) break;
+    if (token.type == END_OF_FILE) break;
   }
 
   return toks;
