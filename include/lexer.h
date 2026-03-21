@@ -20,7 +20,7 @@ void advancen(Lexer *lexer, size_t n);
 char peek(Lexer lexer);
 char peekn(Lexer lexer, size_t n);
 
-static inline bool is_eof(Lexer *lexer) { return lexer->current == '\0'; }
+static inline bool is_eof(char c) { return c == '\0'; }
 static inline bool is_ident_char(char c) {
   return isalnum((unsigned char)c) || c == '.' || c == '/' || c == '-' ||
          c == '_';

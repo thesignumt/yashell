@@ -72,7 +72,8 @@ Token read_string(Lexer* lexer) {
   char buffer[1024];
   size_t i = 0;
 
-  while (lexer->current != quote && !is_eof(lexer) && i < sizeof(buffer) - 1) {
+  while (lexer->current != quote && !is_eof(lexer->current) &&
+         i < sizeof(buffer) - 1) {
     if (lexer->current == '\\') {
       advance(lexer);
       if (lexer->current == quote || lexer->current == '\\') {
@@ -128,7 +129,7 @@ Token read_symbol(Lexer* lexer) {
 Token next_token(Lexer* lexer) {
   skip_whitespace(lexer);
 
-  if (is_eof(lexer)) return new_tok(END_OF_FILE, "", lexer->idx);
+  if (is_eof(lexer->current)) return new_tok(END_OF_FILE, "", lexer->idx);
 
   if (lexer->current == '\'' || lexer->current == '"')
     return read_string(lexer);
@@ -153,7 +154,7 @@ Tokens Lex(const char* src) {
 
     toks.items[toks.count++] = token;
 
-    if (toks.items[toks.count - 1].type == END_OF_FILE) break;
+    if (is_eof(toks.items[toks.count - 1].type)) break;
   }
 
   return toks;
