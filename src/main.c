@@ -38,12 +38,10 @@ int main(void) {
   char cwd[PATH_MAX];
 
   for (CmdCache *cc = new_cc();;) {
-    if (getcwd(cwd, sizeof(cwd)) != NULL) {
+    if (getcwd(cwd, sizeof(cwd)) != NULL)
       printf("%s $ ", cwd);
-    } else {
-      perror("getcwd");
-      printf("$ ");
-    }
+    else
+      fprintf(stderr, "Unable to get current directory. $ ");
 
     char *input = read_input();
     if (!input) break;
