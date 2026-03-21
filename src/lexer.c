@@ -151,9 +151,7 @@ Tokens Lex(const char* src) {
       toks.items = realloc(toks.items, toks.capacity * sizeof(*toks.items));
     }
 
-    toks.items[toks.count].idx = token.idx;
-    toks.items[toks.count].type = token.type;
-    toks.items[toks.count++].lexeme = token.lexeme;
+    toks.items[toks.count++] = token;
 
     if (toks.items[toks.count - 1].type == END_OF_FILE) break;
   }
