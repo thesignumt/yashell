@@ -31,7 +31,7 @@ int main(void) {
 
     Tokens tokens = Lex(input);
     Pipeline *pipeline = Parse(&tokens);
-    free(tokens.items);
+    free_tokens(&tokens);
     if (!pipeline || pipeline->count == 0) continue;
 
     Cmd *cmd0 = &pipeline->cmds[0];
