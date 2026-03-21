@@ -39,9 +39,7 @@ Token read_identifier(Lexer* lexer) {
   char* buffer = malloc(cap);
   // if (!buffer) exit(1);
 
-  while (lexer->current && !isspace((unsigned char)lexer->current) &&
-         lexer->current != '<' && lexer->current != '>' &&
-         lexer->current != '|') {
+  while (lexer->current && is_ident_char(lexer->current)) {
     if (len + 1 >= cap) {
       cap *= 2;
       char* tmp = realloc(buffer, cap);
