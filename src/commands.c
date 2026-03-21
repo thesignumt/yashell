@@ -7,73 +7,46 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 
 #include "cache.h"
 #include "commands.h"
-
-#define DATE_BUFFER 100
 
 CmdResult cmd_clear(int argc, char** argv) {
   (void)argc;
   (void)argv;
   printf("\033[H\033[J");
-  return (CmdResult){STATUS_SUCCESS, NULL, NULL};
+  return ok_void();
 }
 
 CmdResult cmd_cwd(int argc, char** argv) {
   (void)argc;
   (void)argv;
 
-  CmdResult res;
-  res.data = NULL;
-
   char* cwd = malloc(_MAX_PATH);
-  if (!cwd) return (CmdResult){STATUS_ERROR, "malloc failed", NULL};
+  if (!cwd) return oom();
 
-  if (_getcwd(cwd, _MAX_PATH) != NULL) {
-    res.status = STATUS_SUCCESS;
-    res.output = cwd;
-  } else {
+  if (_getcwd(cwd, _MAX_PATH) != NULL)
+    return ok(cwd);
+  else {
     free(cwd);
-    res.status = STATUS_ERROR;
-    res.output = strdup(strerror(errno));
+    return err(strerror(errno));
   }
-  return res;
 }
 
 CmdResult cmd_date(int argc, char** argv) {
   (void)argc;
   (void)argv;
-  CmdResult res;
-  res.data = NULL;
 
-  time_t now;
-  struct tm* t;
-  char buffer[DATE_BUFFER];
-
-  time(&now);
-  t = localtime(&now);
-
-  strftime(buffer, sizeof(buffer), "%a %b %d %H:%M:%S %Z %Y", t);
-
-  res.output = strdup(buffer);
-
-  return res;
+  char* out = format_time("%a %b %d %H:%M:%S %Z %Y");
+  if (!out) return err("time format failed");
+  return ok(out);
 }
 
 CmdResult cmd_echo(int argc, char** argv) {
-  CmdResult res;
-  res.data = NULL;
-
   if (argc == 0) {
-    res.status = STATUS_SUCCESS;
-    res.output = strdup("");
-    if (!res.output) {
-      res.status = STATUS_ERROR;
-      res.output = strdup("malloc failed");
-    }
-    return res;
+    char* empty = xstrdup("");
+    if (!empty) return oom();
+    return ok(empty);
   }
 
   size_t len = 0;
@@ -81,11 +54,7 @@ CmdResult cmd_echo(int argc, char** argv) {
   len += (argc > 1 ? argc - 1 : 0) + 1;
 
   char* out = malloc(len);
-  if (!out) {
-    res.status = STATUS_ERROR;
-    res.output = strdup("malloc failed");
-    return res;
-  }
+  if (!out) return oom();
 
   char* p = out;
   for (int i = 0; i < argc; i++) {
@@ -96,9 +65,7 @@ CmdResult cmd_echo(int argc, char** argv) {
   }
   *p = '\0';
 
-  res.status = STATUS_SUCCESS;
-  res.output = out;
-  return res;
+  return ok(out);
 }
 
 CmdResult cmd_exit(int argc, char** argv) {
@@ -110,30 +77,22 @@ CmdResult cmd_exit(int argc, char** argv) {
 CmdResult cmd_true(int argc, char** argv) {
   (void)argc;
   (void)argv;
-  return (CmdResult){STATUS_SUCCESS, NULL, NULL};
+  return ok_void();
 }
 CmdResult cmd_false(int argc, char** argv) {
   (void)argc;
   (void)argv;
-  return (CmdResult){STATUS_ERROR, NULL, NULL};
+  return err(NULL);
 }
 
 CmdResult cmd_whoami(int argc, char** argv) {
   (void)argc;
   (void)argv;
-  CmdResult res = {0};
 
-  char* user = getenv("USER");           // Linux/macOS
-  if (!user) user = getenv("USERNAME");  // Windows fallback
-
-  if (user) {
-    res.status = STATUS_SUCCESS;
-    res.output = strdup(user);
-  } else {
-    res.status = STATUS_ERROR;
-    res.output = strdup("unknown username");
-  }
-  return res;
+  char* user = getenv_dup("USER");
+  if (!user) user = getenv_dup("USERNAME");
+  if (!user) return err("unknown username");
+  return ok(user);
 }
 
 /**
