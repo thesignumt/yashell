@@ -144,7 +144,7 @@ Tokens Lex(const char* src) {
   toks.capacity = 16;
   toks.items = malloc(toks.capacity * sizeof(*toks.items));
 
-  while (true) {
+  while (1) {
     Token token = next_token(&lexer);
     if (toks.count >= toks.capacity) {
       toks.capacity *= 2;
