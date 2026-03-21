@@ -12,10 +12,29 @@
 #include "parser.h"
 #include "token.h"
 
-#define INPUT_SIZE 2048
+char *read_input(void) {
+  size_t size = 2048;
+  size_t len = 0;
+  char *buf = malloc(size);
+  if (!buf) return NULL;
+
+  while (fgets(buf + len, size - len, stdin)) {
+    len += strlen(buf + len);
+    if (len > 0 && buf[len - 1] == '\n') break;
+    size *= 2;
+    char *tmp = realloc(buf, size);
+    if (!tmp) {
+      free(buf);
+      return NULL;
+    }
+    buf = tmp;
+  }
+
+  if (len > 0 && buf[len - 1] == '\n') buf[len - 1] = '\0';
+  return buf;
+}
 
 int main(void) {
-  char input[INPUT_SIZE];
   char cwd[PATH_MAX];
 
   for (CmdCache *cc = new_cc();;) {
@@ -26,23 +45,22 @@ int main(void) {
       printf("$ ");
     }
 
-    if (!fgets(input, sizeof(input), stdin)) break;
+    char *input = read_input();
+    if (!input) break;
 
-    // flush remaining input if line too long
-    if (strchr(input, '\n') == NULL) {
-      int c;
-      while ((c = getchar()) != '\n' && c != EOF);  // flush
+    if (!*input) {
+      free(input);
+      continue;
     }
-
-    char *p = input;
-    while (*p && *p != '\n') p++;
-    *p = '\0';
-    if (!*input) continue;
 
     Tokens tokens = Lex(input);
     Pipeline *pipeline = Parse(&tokens);
-    free_tokens(&tokens);
-    if (!pipeline || pipeline->count == 0) continue;
+    if (!pipeline || pipeline->count == 0) {
+      free_tokens(&tokens);
+      free_pipeline(pipeline);
+      free(input);
+      continue;
+    }
 
     Cmd *cmd0 = &pipeline->cmds[0];
     CmdFn cmd_fn = cmd_cache_get(cc, cmd0->name);
@@ -65,7 +83,9 @@ int main(void) {
 
     // free memory
     if (res.output) free(res.output);
+    free_tokens(&tokens);
     free_pipeline(pipeline);
+    free(input);
   }
 
   return 0;
