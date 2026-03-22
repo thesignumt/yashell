@@ -17,6 +17,8 @@ Lexer init_lexer(const char *input);
 void advance(Lexer *lexer);
 void advancen(Lexer *lexer, size_t n);
 
+int eat(Lexer *lexer, char e);
+
 char peek(Lexer lexer);
 char peekn(Lexer lexer, size_t n);
 

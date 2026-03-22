@@ -25,6 +25,15 @@ void advancen(Lexer* lexer, size_t n) {
   lexer->current = lexer->input[lexer->idx];
 }
 
+// e = expected
+int eat(Lexer* lexer, char e) {
+  if (lexer->current == e) {
+    advance(lexer);
+    return 1;
+  }
+  return 0;
+}
+
 char peek(Lexer lexer) {
   return (lexer.idx + 1 < lexer.len) ? lexer.input[lexer.idx + 1] : '\0';
 }
@@ -72,8 +81,7 @@ Token read_string(Lexer* lexer) {
 
   while (lexer->current != quote && !is_eof_char(lexer->current) &&
          i < sizeof(buffer) - 1) {
-    if (lexer->current == '\\') {
-      advance(lexer);
+    if (eat(lexer, '\\')) {
       if (lexer->current == quote || lexer->current == '\\') {
         buffer[i] = lexer->current;
         advance(lexer);
@@ -87,7 +95,7 @@ Token read_string(Lexer* lexer) {
     i++;
   }
 
-  if (lexer->current == quote) advance(lexer);
+  eat(lexer, quote);
   buffer[i] = '\0';
 
   return new_tok(STRING, buffer, lexer->idx);
@@ -98,31 +106,16 @@ Token read_symbol(Lexer* lexer) {
   size_t start = lexer->idx;
   char cur = lexer->current;
 
-  switch (cur) {
-    case '<':
-      advance(lexer);
-      return new_tok(STDIN_REDIRECT, "<", start);
-
-    case '>':
-      if (peek(*lexer) == '>') {
-        advancen(lexer, 2);
-        return new_tok(REDIRECT_APPEND, ">>", start);
-      }
-      advance(lexer);
-      return new_tok(STDOUT_REDIRECT, ">", start);
-
-    case '|':
-      advance(lexer);
-      return new_tok(PIPE, "|", start);
-
-    case '&':
-      advance(lexer);
-      return new_tok(BACKGROUND, "&", start);
-
-    default:
-      advance(lexer);
-      return new_tok(UNKNOWN, (char[]){cur, '\0'}, start);  // use saved 'cur'
+  if (eat(lexer, '<')) return new_tok(STDIN_REDIRECT, "<", start);
+  if (eat(lexer, '>')) {
+    if (eat(lexer, '>')) return new_tok(REDIRECT_APPEND, ">>", start);
+    return new_tok(STDOUT_REDIRECT, ">", start);
   }
+  if (eat(lexer, '|')) return new_tok(PIPE, "|", start);
+  if (eat(lexer, '&')) return new_tok(PIPE, "&", start);
+
+  advance(lexer);
+  return new_tok(UNKNOWN, (char[]){cur, '\0'}, start);  // use saved 'cur'
 }
 
 Token next_token(Lexer* lexer) {
