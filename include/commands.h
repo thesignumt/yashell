@@ -1,5 +1,6 @@
 #pragma once
 
+#include <errno.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
@@ -49,6 +50,8 @@ static inline CmdResult ok_void(void) {
 static inline CmdResult err(const char *msg) {
   return (CmdResult){STATUS_ERROR, msg ? strdup(msg) : NULL, NULL};
 }
+
+static inline CmdResult err_from_errno(void) { return err(strerror(errno)); }
 
 static inline CmdResult oom(void) { return err("malloc failed"); }
 

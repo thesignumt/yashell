@@ -1,7 +1,6 @@
 // TODO: make aliases (including pwd and more)
 
 #include <direct.h>  // for _getcwd
-#include <errno.h>
 #include <fcntl.h>
 #include <limits.h>  // for _MAX_PATH
 #include <stddef.h>
@@ -21,19 +20,19 @@ CmdResult cmd_cat(int argc, char** argv) {
 
   // use _open (on windows) with _O_BINARY to avoid CRLF translation
   int fd = _open(filename, _O_RDONLY | _O_BINARY);
-  if (fd < 0) return err(strerror(errno));
+  if (fd < 0) return err_from_errno();
 
   struct _stat st;
   if (_fstat(fd, &st) < 0) {
     _close(fd);
-    return err(strerror(errno));
+    return err_from_errno();
   }
 
   size_t size = st.st_size;
   char* buf = malloc(size + 1);  // +1 for '\0'
   if (!buf) {
     _close(fd);
-    return err(strerror(errno));
+    return err_from_errno();
   }
 
   size_t total = 0;
@@ -48,7 +47,7 @@ CmdResult cmd_cat(int argc, char** argv) {
 
   if (total != size) {  // read error
     free(buf);
-    return err(strerror(errno));
+    return err_from_errno();
   }
 
   buf[total] = '\0';  // null-terminate
@@ -73,7 +72,7 @@ CmdResult cmd_cwd(int argc, char** argv) {
     return ok(cwd);
   else {
     free(cwd);
-    return err(strerror(errno));
+    return err_from_errno();
   }
 }
 
