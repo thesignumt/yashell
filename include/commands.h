@@ -7,6 +7,7 @@
 
 #define INIT_CC_CAPACITY 64 // initial cmd cache capacity
 #define DATE_BUFFER 100
+#define CAT_BUF_SIZE 65536
 
 typedef struct CmdCache CmdCache;
 

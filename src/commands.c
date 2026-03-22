@@ -2,14 +2,58 @@
 
 #include <direct.h>  // for _getcwd
 #include <errno.h>
+#include <fcntl.h>
 #include <limits.h>  // for _MAX_PATH
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "cache.h"
 #include "commands.h"
+
+CmdResult cmd_cat(int argc, char** argv) {
+  if (argc < 1) return err("no file specified");
+
+  const char* filename = argv[0];
+
+  // use _open (on windows) with _O_BINARY to avoid CRLF translation
+  int fd = _open(filename, _O_RDONLY | _O_BINARY);
+  if (fd < 0) return err(strerror(errno));
+
+  struct _stat st;
+  if (_fstat(fd, &st) < 0) {
+    _close(fd);
+    return err(strerror(errno));
+  }
+
+  size_t size = st.st_size;
+  char* buf = malloc(size + 1);  // +1 for '\0'
+  if (!buf) {
+    _close(fd);
+    return err(strerror(errno));
+  }
+
+  size_t total = 0;
+  ssize_t n;
+  while (total < size &&
+         (n = _read(
+              fd, buf + total,
+              CAT_BUF_SIZE < size - total ? CAT_BUF_SIZE : size - total)) > 0)
+    total += n;
+
+  _close(fd);
+
+  if (total != size) {  // read error
+    free(buf);
+    return err(strerror(errno));
+  }
+
+  buf[total] = '\0';  // null-terminate
+  return ok(buf);
+}
 
 CmdResult cmd_clear(int argc, char** argv) {
   (void)argc;
@@ -106,10 +150,10 @@ CmdCache* new_cc(void) {
   static struct {
     const char* name;
     CmdFn f;
-  } cmds[] = {{"clear", cmd_clear},  {"cls", cmd_clear},   {"cwd", cmd_cwd},
-              {"date", cmd_date},    {"pwd", cmd_cwd},     {"echo", cmd_echo},
-              {"exit", cmd_exit},    {"false", cmd_false}, {"true", cmd_true},
-              {"whoami", cmd_whoami}};
+  } cmds[] = {{"cat", cmd_cat},   {"clear", cmd_clear},  {"cls", cmd_clear},
+              {"cwd", cmd_cwd},   {"date", cmd_date},    {"pwd", cmd_cwd},
+              {"echo", cmd_echo}, {"exit", cmd_exit},    {"false", cmd_false},
+              {"true", cmd_true}, {"whoami", cmd_whoami}};
 
   for (size_t i = 0; i < sizeof(cmds) / sizeof(cmds[0]); i++)
     cmd_cache_put(cache, cmds[i].name, cmds[i].f);
