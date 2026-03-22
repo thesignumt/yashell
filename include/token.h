@@ -20,11 +20,12 @@ typedef struct {
   TokenType type;
   char *lexeme;
   size_t idx;
+  size_t len;
 } Token;
 
 // it strdup's lexeme
-static inline Token new_tok(TokenType t, char *lexeme, size_t idx) {
-  return (Token){t, strdup(lexeme), idx};
+static inline Token new_tok(TokenType t, char *lexeme, size_t idx, size_t len) {
+  return (Token){t, strdup(lexeme), idx, len};
 }
 
 typedef struct {
