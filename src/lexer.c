@@ -44,6 +44,7 @@ void skip_whitespace(Lexer* lexer) {
 
 // IDENTIFIER: command names, args, paths
 Token read_identifier(Lexer* lexer) {
+  size_t start = lexer->idx;
   size_t cap = 32;
   size_t len = 0;
   char* buffer = malloc(cap);
@@ -53,26 +54,21 @@ Token read_identifier(Lexer* lexer) {
     if (len + 1 >= cap) {
       cap *= 2;
       char* tmp = realloc(buffer, cap);
-      if (!tmp) {
-        free(buffer);
-        exit(1);
-      }
+      if (!tmp) exit(1);
       buffer = tmp;
     }
-
     buffer[len++] = lexer->current;
     advance(lexer);
   }
-
   buffer[len] = '\0';
-
-  Token tok = new_tok(IDENTIFIER, buffer, lexer->idx);
+  Token tok = new_tok(IDENTIFIER, buffer, start, len);
   free(buffer);  // safe if new_tok copies string
   return tok;
 }
 
 // STRING: quoted arguments
 Token read_string(Lexer* lexer) {
+  size_t start = lexer->idx;
   char quote = lexer->current;
   advance(lexer);
 
@@ -98,7 +94,7 @@ Token read_string(Lexer* lexer) {
   eat(lexer, quote);
   buffer[i] = '\0';
 
-  return new_tok(STRING, buffer, lexer->idx);
+  return new_tok(STRING, buffer, start, lexer->idx - start);
 }
 
 // Symbols: < > >> | &
@@ -106,22 +102,26 @@ Token read_symbol(Lexer* lexer) {
   size_t start = lexer->idx;
   char cur = lexer->current;
 
-  if (eat(lexer, '<')) return new_tok(STDIN_REDIRECT, "<", start);
+  if (eat(lexer, '<'))
+    return new_tok(STDIN_REDIRECT, "<", start, lexer->idx - start);
   if (eat(lexer, '>')) {
-    if (eat(lexer, '>')) return new_tok(REDIRECT_APPEND, ">>", start);
-    return new_tok(STDOUT_REDIRECT, ">", start);
+    if (eat(lexer, '>'))
+      return new_tok(REDIRECT_APPEND, ">>", start, lexer->idx - start);
+    return new_tok(STDOUT_REDIRECT, ">", start, lexer->idx - start);
   }
-  if (eat(lexer, '|')) return new_tok(PIPE, "|", start);
-  if (eat(lexer, '&')) return new_tok(PIPE, "&", start);
+  if (eat(lexer, '|')) return new_tok(PIPE, "|", start, lexer->idx - start);
+  if (eat(lexer, '&'))
+    return new_tok(BACKGROUND, "&", start, lexer->idx - start);
 
   advance(lexer);
-  return new_tok(UNKNOWN, (char[]){cur, '\0'}, start);  // use saved 'cur'
+  return new_tok(UNKNOWN, (char[]){cur, '\0'}, start, 1);
 }
 
 Token next_token(Lexer* lexer) {
   skip_whitespace(lexer);
 
-  if (is_eof_char(lexer->current)) return new_tok(END_OF_FILE, "", lexer->idx);
+  if (is_eof_char(lexer->current))
+    return new_tok(END_OF_FILE, "", lexer->idx, 0);
 
   if (lexer->current == '\'' || lexer->current == '"')
     return read_string(lexer);
@@ -135,13 +135,14 @@ Tokens Lex(const char* src) {
   Lexer lexer = init_lexer(src);
   Tokens toks = {0};
   toks.capacity = 16;
-  toks.items = malloc(toks.capacity * sizeof(*toks.items));
+  size_t tsize = toks.capacity * sizeof(*toks.items);
+  toks.items = malloc(tsize);
 
   while (1) {
     Token token = next_token(&lexer);
     if (toks.count >= toks.capacity) {
       toks.capacity *= 2;
-      toks.items = realloc(toks.items, toks.capacity * sizeof(*toks.items));
+      toks.items = realloc(toks.items, tsize);
     }
 
     toks.items[toks.count++] = token;
