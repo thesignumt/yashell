@@ -87,9 +87,8 @@ void process_input(CmdCache *cc, char *input) {
 
 void run_shell(void) {
   CmdCache *cc = new_cc();
-  for (;;) {
-    char *input = prompt_and_read();
-    if (!input) break;
+  char *input;
+  while ((input = prompt_and_read()) != NULL) {
     process_input(cc, input);
     free(input);
   }
