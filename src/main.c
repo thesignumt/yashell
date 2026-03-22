@@ -97,7 +97,6 @@ void run_shell(void) {
 }
 
 int main(void) {
-  signal(SIGINT, handle_sigint);
   run_shell();
   return 0;
 }
