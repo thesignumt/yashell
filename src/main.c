@@ -1,7 +1,6 @@
 // TODO: support multiline prompt
 
 #include <direct.h>
-#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,10 +37,11 @@ char *read_input(void) {
 }
 
 char *prompt_and_read(void) {
-  char cwd[PATH_MAX];
-  if (getcwd(cwd, sizeof(cwd)) != NULL)
-    printf("[%c] %s $ ", get_status_char(last_cmd_status), cwd);
-  else
+  char *cwd = _getcwd(NULL, 0);
+  if (cwd) {
+    printf("%s $ ", cwd);
+    free(cwd);
+  } else
     fprintf(stderr, "Unable to get current directory. $ ");
   fflush(stdout);
 

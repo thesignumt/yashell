@@ -1,9 +1,8 @@
 // TODO: make aliases (including pwd and more)
 
-#include <direct.h>  // for _getcwd
+#include <direct.h>
 #include <fcntl.h>
-#include <limits.h>  // for _MAX_PATH
-#include <stddef.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -65,15 +64,10 @@ CmdResult cmd_cwd(int argc, char** argv) {
   (void)argc;
   (void)argv;
 
-  char* cwd = malloc(_MAX_PATH);
-  if (!cwd) return oom();
+  char* cwd = _getcwd(NULL, 0);
+  if (!cwd) return err_from_errno();
 
-  if (_getcwd(cwd, _MAX_PATH) != NULL)
-    return ok(cwd);
-  else {
-    free(cwd);
-    return err_from_errno();
-  }
+  return ok(cwd);  // caller frees
 }
 
 CmdResult cmd_date(int argc, char** argv) {
