@@ -13,6 +13,8 @@
 #include "parser.h"
 #include "token.h"
 
+CmdStatus last_cmd_status = STATUS_UNSET;
+
 char *read_input(void) {
   size_t size = 2048;
   size_t len = 0;
@@ -38,7 +40,7 @@ char *read_input(void) {
 char *prompt_and_read(void) {
   char cwd[PATH_MAX];
   if (getcwd(cwd, sizeof(cwd)) != NULL)
-    printf("%s $ ", cwd);
+    printf("[%c] %s $ ", get_status_char(last_cmd_status), cwd);
   else
     fprintf(stderr, "Unable to get current directory. $ ");
   fflush(stdout);
@@ -63,9 +65,11 @@ void process_input(CmdCache *cc, char *input) {
 
   switch (res.status) {
     case STATUS_SUCCESS:
+      last_cmd_status = STATUS_SUCCESS;
       if (res.output) puts(res.output);
       break;
     case STATUS_ERROR:
+      last_cmd_status = STATUS_ERROR;
       if (res.output) fprintf(stderr, "Error: %s\n", res.output);
       break;
     case STATUS_EXIT_CMD:
@@ -75,7 +79,11 @@ void process_input(CmdCache *cc, char *input) {
       cmd_cache_free(cc);
       exit(0);
     case STATUS_CMD_NOT_FOUND:
+      last_cmd_status = STATUS_CMD_NOT_FOUND;
       fprintf(stderr, "Command not found: %s\n", cmd0->name);
+      break;
+
+    case STATUS_UNSET:
       break;
   }
 

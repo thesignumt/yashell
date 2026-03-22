@@ -13,10 +13,11 @@
 typedef struct CmdCache CmdCache;
 
 typedef enum {
-  STATUS_SUCCESS = 0,
-  STATUS_ERROR = 1,
-  STATUS_EXIT_CMD = 2,
-  STATUS_CMD_NOT_FOUND = 3
+  STATUS_UNSET = -1,
+  STATUS_SUCCESS,
+  STATUS_ERROR,
+  STATUS_EXIT_CMD,
+  STATUS_CMD_NOT_FOUND
   // TODO: STATUS_CTRL_C = 4
 } CmdStatus;
 
