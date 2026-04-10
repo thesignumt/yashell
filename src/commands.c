@@ -54,15 +54,13 @@ CmdResult cmd_cat(int argc, char** argv) {
 }
 
 CmdResult cmd_clear(int argc, char** argv) {
-  (void)argc;
-  (void)argv;
+  UNUSED_ARGS
   printf("\033[H\033[J");
   return ok_void();
 }
 
 CmdResult cmd_cwd(int argc, char** argv) {
-  (void)argc;
-  (void)argv;
+  UNUSED_ARGS
 
   char* cwd = _getcwd(NULL, 0);
   if (!cwd) return err_from_errno();
@@ -71,8 +69,7 @@ CmdResult cmd_cwd(int argc, char** argv) {
 }
 
 CmdResult cmd_date(int argc, char** argv) {
-  (void)argc;
-  (void)argv;
+  UNUSED_ARGS
 
   char* out = format_time("%a %b %d %H:%M:%S %Z %Y");
   if (!out) return err("time format failed");
@@ -106,25 +103,21 @@ CmdResult cmd_echo(int argc, char** argv) {
 }
 
 CmdResult cmd_exit(int argc, char** argv) {
-  (void)argc;
-  (void)argv;
+  UNUSED_ARGS
   return (CmdResult){STATUS_EXIT_CMD, NULL, NULL};
 }
 
 CmdResult cmd_true(int argc, char** argv) {
-  (void)argc;
-  (void)argv;
+  UNUSED_ARGS
   return ok_void();
 }
 CmdResult cmd_false(int argc, char** argv) {
-  (void)argc;
-  (void)argv;
+  UNUSED_ARGS
   return err(NULL);
 }
 
 CmdResult cmd_whoami(int argc, char** argv) {
-  (void)argc;
-  (void)argv;
+  UNUSED_ARGS
 
   char* user = getenv_dup("USER");
   if (!user) user = getenv_dup("USERNAME");
