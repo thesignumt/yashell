@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PARSER_H_
+#define PARSER_H_
 
 #include "token.h"
 #include <stdbool.h>
@@ -26,3 +27,4 @@ void free_cmd(Cmd *cmd);
 void free_pipeline(Pipeline *pipeline);
 
 Pipeline *Parse(Tokens *tokens);
+#endif  // PARSER_H_

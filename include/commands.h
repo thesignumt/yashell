@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COMMANDS_H_
+#define COMMANDS_H_
 
 #include <errno.h>
 #include <stddef.h>
@@ -83,3 +84,5 @@ static inline char *format_time(const char *fmt) {
 ////////////////////////////////////////////////////////////
 
 CmdCache *new_cc(void);
+
+#endif  // COMMANDS_H_

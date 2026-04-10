@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LEXER_H_
+#define LEXER_H_
 
 #include "token.h"
 #include <ctype.h>
@@ -39,3 +40,5 @@ Token read_symbol(Lexer *lexer);
 Token next_token(Lexer *lexer);
 
 Tokens Lex(const char *src);
+
+#endif  // LEXER_H_

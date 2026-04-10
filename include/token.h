@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TOKEN_H_
+#define TOKEN_H_
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -42,3 +43,5 @@ static inline void free_tokens(Tokens *toks) {
   }
   free(toks->items);
 }
+
+#endif  // TOKEN_H_
