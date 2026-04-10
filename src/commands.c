@@ -1,6 +1,7 @@
 // TODO: make aliases (including pwd and more)
 
 #include <direct.h>
+#include <dirent.h>
 #include <fcntl.h>
 #include <limits.h>
 #include <stdio.h>
@@ -107,6 +108,61 @@ CmdResult cmd_exit(int argc, char** argv) {
   return (CmdResult){STATUS_EXIT_CMD, NULL, NULL};
 }
 
+CmdResult cmd_ls(int argc, char** argv) {
+  printf("argc: %d\nargv[0]: %s\n", argc, argv[0]);
+  const char* path = (argc > 1) ? argv[0] : ".";
+
+  DIR* dir = opendir(path);
+  if (!dir) return err_from_errno();
+
+  struct dirent* entry;
+
+  size_t cap = 1024;
+  size_t len = 0;
+  char* out = malloc(cap);
+  if (!out) {
+    closedir(dir);
+    return oom();
+  }
+
+  out[0] = '\0';
+
+  while ((entry = readdir(dir)) != NULL) {
+    const char* name = entry->d_name;
+
+    // skip "." and ".."
+    if (name[0] == '.' &&
+        (name[1] == '\0' || (name[1] == '.' && name[2] == '\0')))
+      continue;
+
+    size_t n = strlen(name);
+
+    // resize buffer if needed (+1 for newline, +1 for null)
+    if (len + n + 2 > cap) {
+      cap *= 2;
+      char* tmp = realloc(out, cap);
+      if (!tmp) {
+        free(out);
+        closedir(dir);
+        return oom();
+      }
+      out = tmp;
+    }
+
+    memcpy(out + len, name, n);
+    len += n;
+
+    out[len++] = '\n';
+    out[len] = '\0';
+  }
+
+  closedir(dir);
+
+  if (len > 0 && out[len - 1] == '\n') out[len - 1] = '\0';
+
+  return ok(out);
+}
+
 CmdResult cmd_true(int argc, char** argv) {
   UNUSED_ARGS
   return ok_void();
@@ -136,10 +192,10 @@ CmdCache* new_cc(void) {
   static struct {
     const char* name;
     CmdFn f;
-  } cmds[] = {{"cat", cmd_cat},   {"clear", cmd_clear},  {"cls", cmd_clear},
-              {"cwd", cmd_cwd},   {"date", cmd_date},    {"pwd", cmd_cwd},
-              {"echo", cmd_echo}, {"exit", cmd_exit},    {"false", cmd_false},
-              {"true", cmd_true}, {"whoami", cmd_whoami}};
+  } cmds[] = {{"cat", cmd_cat},   {"clear", cmd_clear}, {"cls", cmd_clear},
+              {"cwd", cmd_cwd},   {"date", cmd_date},   {"pwd", cmd_cwd},
+              {"echo", cmd_echo}, {"exit", cmd_exit},   {"false", cmd_false},
+              {"ls", cmd_ls},     {"true", cmd_true},   {"whoami", cmd_whoami}};
 
   for (size_t i = 0; i < sizeof(cmds) / sizeof(cmds[0]); i++)
     cmd_cache_put(cache, cmds[i].name, cmds[i].f);

@@ -3,23 +3,20 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "lexer.h"
 #include "parser.h"
 #include "token.h"
 
 void add_cmd(Pipeline* pipeline, Cmd cmd) {
   pipeline->cmds = realloc(pipeline->cmds, (pipeline->count + 1) * sizeof(Cmd));
-  pipeline->cmds[pipeline->count] = cmd;
-  pipeline->count++;
+  pipeline->cmds[pipeline->count++] = cmd;
 }
 void add_arg(Cmd* cmd, const char* arg) {
-  // realloc to hold one more arg + NULL terminator
-  cmd->argv = realloc(cmd->argv, sizeof(char*) * (cmd->argc + 2));
+  cmd->argv = realloc(cmd->argv, sizeof(*cmd->argv) * (cmd->argc + 2));
+  if (!cmd->argv) return;
 
-  // allocate and copy the new string
-  cmd->argv[cmd->argc] = malloc(strlen(arg) + 1);
-  strcpy((char*)cmd->argv[cmd->argc], arg);
-
-  cmd->argv[++cmd->argc] = NULL;  // keep NULL-terminated
+  cmd->argv[cmd->argc++] = strdup(arg);
+  cmd->argv[cmd->argc] = NULL;
 }
 
 void free_cmd(Cmd* cmd) {
@@ -28,9 +25,8 @@ void free_cmd(Cmd* cmd) {
   free(cmd->name);
 
   if (cmd->argv) {
-    for (int i = 0; i < cmd->argc; i++) {
-      free(cmd->argv[i]);
-    }
+    for (int i = 0; i < cmd->argc; i++) free(cmd->argv[i]);
+
     free(cmd->argv);
   }
 
@@ -40,9 +36,7 @@ void free_cmd(Cmd* cmd) {
 void free_pipeline(Pipeline* pipeline) {
   if (!pipeline) return;
 
-  for (int i = 0; i < pipeline->count; i++) {
-    free_cmd(&pipeline->cmds[i]);
-  }
+  for (int i = 0; i < pipeline->count; i++) free_cmd(&pipeline->cmds[i]);
 
   free(pipeline->cmds);
   free(pipeline);
@@ -56,28 +50,35 @@ Pipeline* Parse(Tokens* tokens) {
   while (i < tokens->count) {
     Token token = tokens->items[i];
 
-    if (token.type == PIPE) {
-      add_cmd(pipeline, cmd);
-      cmd = (Cmd){0};
-    } else if (token.type == STDIN_REDIRECT) {
-      if (++i < tokens->count)
-        cmd.stdin_redirect = strdup(tokens->items[i].lexeme);
-    } else if (token.type == STDOUT_REDIRECT) {
-      if (++i < tokens->count)
-        cmd.stdout_redirect = strdup(tokens->items[i].lexeme);
-      cmd.append_stdout = false;
-    } else if (token.type == REDIRECT_APPEND) {
-      if (++i < tokens->count)
-        cmd.stdout_redirect = strdup(tokens->items[i].lexeme);
-      cmd.append_stdout = true;
-    } else if (token.type == BACKGROUND) {
-      pipeline->run_in_bg = true;
-    } else {
-      if (cmd.name == NULL || cmd.name[0] == '\0') {
-        cmd.name = strdup(token.lexeme);
-      } else {
-        add_arg(&cmd, token.lexeme);
-      }
+    switch (token.type) {
+      case PIPE:
+        add_cmd(pipeline, cmd);
+        cmd = (Cmd){0};
+        break;
+      case STDIN_REDIRECT:
+        if (++i < tokens->count)
+          cmd.stdin_redirect = strdup(tokens->items[i].lexeme);
+        break;
+      case STDOUT_REDIRECT:
+        if (++i < tokens->count)
+          cmd.stdout_redirect = strdup(tokens->items[i].lexeme);
+        cmd.append_stdout = false;
+        break;
+      case REDIRECT_APPEND:
+        if (++i < tokens->count)
+          cmd.stdout_redirect = strdup(tokens->items[i].lexeme);
+        cmd.append_stdout = true;
+        break;
+      case BACKGROUND:
+        pipeline->run_in_bg = true;
+        break;
+
+      default:
+        if (cmd.name == NULL || is_eof_char(cmd.name[0]))
+          cmd.name = strdup(token.lexeme);
+        else
+          add_arg(&cmd, token.lexeme);
+        break;
     }
 
     i++;

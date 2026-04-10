@@ -8,7 +8,6 @@
 #include "cache.h"
 #include "commands.h"
 #include "lexer.h"
-#include "main.h"
 #include "parser.h"
 #include "token.h"
 
@@ -16,23 +15,17 @@ CmdStatus last_cmd_status = STATUS_UNSET;
 
 char *read_input(void) {
   size_t size = 2048;
-  size_t len = 0;
   char *buf = malloc(size);
   if (!buf) return NULL;
 
-  while (fgets(buf + len, size - len, stdin)) {
-    len += strlen(buf + len);
-    if (len > 0 && buf[len - 1] == '\n') break;
-    size *= 2;
-    char *tmp = realloc(buf, size);
-    if (!tmp) {
-      free(buf);
-      return NULL;
-    }
-    buf = tmp;
+  if (!fgets(buf, size, stdin)) {
+    free(buf);
+    return NULL;
   }
 
+  size_t len = strlen(buf);
   if (len > 0 && buf[len - 1] == '\n') buf[len - 1] = '\0';
+
   return buf;
 }
 
