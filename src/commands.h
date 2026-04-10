@@ -45,21 +45,28 @@ CmdResult cmd_whoami(int argc, char *argv[]);
 
 ////////////////////////////////////////////////////////////
 
+static inline CmdResult cmd_result(CmdStatus status, char *output, void *data) {
+  return (CmdResult){status, output, data};
+}
+
 static inline CmdResult ok(char *output) {
-  return (CmdResult){STATUS_SUCCESS, output, NULL};
+  return cmd_result(STATUS_SUCCESS, output, NULL);
 }
 
 static inline CmdResult ok_void(void) {
-  return (CmdResult){STATUS_SUCCESS, NULL, NULL};
+  return cmd_result(STATUS_SUCCESS, NULL, NULL);
 }
 
 static inline CmdResult err(const char *msg) {
-  return (CmdResult){STATUS_ERROR, msg ? strdup(msg) : NULL, NULL};
+  if (!msg) return cmd_result(STATUS_ERROR, NULL, NULL);
+
+  char *copy = strdup(msg);
+  return cmd_result(STATUS_ERROR, copy, NULL);
 }
 
 static inline CmdResult err_from_errno(void) { return err(strerror(errno)); }
 
-static inline CmdResult oom(void) { return err("malloc failed"); }
+static inline CmdResult oom(void) { return err("out of memory"); }
 
 static inline char *xstrdup(const char *s) {
   if (!s) return NULL;
