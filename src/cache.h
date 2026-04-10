@@ -1,8 +1,9 @@
 #ifndef CACHE_H_
 #define CACHE_H_
 
-#include "commands.h"
 #include <stddef.h>
+
+#include "commands.h"
 
 typedef struct CmdCache CmdCache;
 

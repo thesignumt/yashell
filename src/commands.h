@@ -7,7 +7,11 @@
 #include <string.h>
 #include <time.h>
 
-#define INIT_CC_CAPACITY 64 // initial cmd cache capacity
+#define UNUSED_ARGS \
+  (void)argc;       \
+  (void)argv;
+
+#define INIT_CC_CAPACITY 64
 #define DATE_BUFFER 100
 #define CAT_BUF_SIZE 65536
 
@@ -23,9 +27,9 @@ typedef enum {
 } CmdStatus;
 
 typedef struct {
-  CmdStatus status; // 0 = success, non-zero = error code
-  char *output;     // optional string output from the command
-  void *data;       // optional pointer to extra data (if needed)
+  CmdStatus status;  // 0 = success, non-zero = error code
+  char *output;      // optional string output from the command
+  void *data;        // optional pointer to extra data (if needed)
 } CmdResult;
 
 typedef CmdResult (*CmdFn)(int argc, char *argv[]);
@@ -58,8 +62,7 @@ static inline CmdResult err_from_errno(void) { return err(strerror(errno)); }
 static inline CmdResult oom(void) { return err("malloc failed"); }
 
 static inline char *xstrdup(const char *s) {
-  if (!s)
-    return NULL;
+  if (!s) return NULL;
   return strdup(s);
 }
 
@@ -71,12 +74,10 @@ static inline char *getenv_dup(const char *name) {
 static inline char *format_time(const char *fmt) {
   time_t now = time(NULL);
   struct tm *t = localtime(&now);
-  if (!t)
-    return NULL;
+  if (!t) return NULL;
 
   char buf[DATE_BUFFER];
-  if (!strftime(buf, sizeof(buf), fmt, t))
-    return NULL;
+  if (!strftime(buf, sizeof(buf), fmt, t)) return NULL;
 
   return strdup(buf);
 }
