@@ -1,17 +1,15 @@
 #ifndef PARSER_H_
 #define PARSER_H_
 
-#include <ctype.h>
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "lexer.h"
 #include "token.h"
 
 typedef struct {
-  char *name;
-  char **argv;
+  char **argv;  // argv[0] = command name
   int argc;
+
   char *stdin_redirect;
   char *stdout_redirect;
   bool append_stdout;
