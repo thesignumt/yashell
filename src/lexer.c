@@ -131,18 +131,18 @@ Token next_token(Lexer* lexer) {
   return read_symbol(lexer);
 }
 
+// NOTE: EOF is a sentinel token used only by the parser.
 Tokens Lex(const char* src) {
   Lexer lexer = init_lexer(src);
   Tokens toks = {0};
   toks.capacity = 16;
-  size_t tsize = toks.capacity * sizeof(*toks.items);
-  toks.items = malloc(tsize);
+  toks.items = malloc(toks.capacity * sizeof(*toks.items));
 
   while (1) {
     Token token = next_token(&lexer);
     if (toks.count >= toks.capacity) {
       toks.capacity *= 2;
-      toks.items = realloc(toks.items, tsize);
+      toks.items = realloc(toks.items, toks.capacity * sizeof(*toks.items));
     }
 
     toks.items[toks.count++] = token;
