@@ -35,12 +35,8 @@ typedef struct {
   size_t capacity;
 } Tokens;
 
-static inline void free_token(Token *tok) { free(tok->lexeme); }
-
 static inline void free_tokens(Tokens *toks) {
-  for (size_t i = 0; i < toks->count; i++) {
-    free_token(&toks->items[i]);
-  }
+  for (size_t i = 0; i < toks->count; i++) free(toks->items[i].lexeme);
   free(toks->items);
 }
 
