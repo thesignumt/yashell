@@ -34,15 +34,6 @@ typedef struct {
 
 typedef CmdResult (*CmdFn)(int argc, char *argv[]);
 
-CmdResult cmd_clear(int argc, char *argv[]);
-CmdResult cmd_cwd(int argc, char *argv[]);
-CmdResult cmd_date(int argc, char *argv[]);
-CmdResult cmd_echo(int argc, char *argv[]);
-CmdResult cmd_exit(int argc, char *argv[]);
-CmdResult cmd_true(int argc, char *argv[]);
-CmdResult cmd_false(int argc, char *argv[]);
-CmdResult cmd_whoami(int argc, char *argv[]);
-
 ////////////////////////////////////////////////////////////
 
 static inline CmdResult cmd_result(CmdStatus status, char *output, void *data) {
