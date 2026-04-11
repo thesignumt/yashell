@@ -14,11 +14,10 @@
 #include "commands.h"
 
 CmdResult cmd_cat(int argc, char** argv) {
-  if (argc < 1) return err("no file specified");
+  if (argc < 2) return err("no file specified");
 
-  const char* filename = argv[0];
+  const char* filename = argv[1];
 
-  // use _open (on windows) with _O_BINARY to avoid CRLF translation
   int fd = _open(filename, _O_RDONLY | _O_BINARY);
   if (fd < 0) return err_from_errno();
 
@@ -50,7 +49,7 @@ CmdResult cmd_cat(int argc, char** argv) {
     return err_from_errno();
   }
 
-  buf[total] = '\0';  // null-terminate
+  buf[total] = '\0';
   return ok(buf);
 }
 
