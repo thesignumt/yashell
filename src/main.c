@@ -11,7 +11,14 @@
 #include "parser.h"
 #include "token.h"
 
-CmdStatus last_cmd_status = STATUS_UNSET;
+const char *get_home_cached(void) {
+#ifdef _WIN32
+  const char *h = getenv("USERPROFILE");
+  return h ? h : getenv("HOMEDRIVE");
+#else
+  return getenv("HOME");
+#endif
+}
 
 char *read_input(void) {
   size_t size = 2048;
@@ -31,8 +38,14 @@ char *read_input(void) {
 
 char *prompt_and_read(void) {
   char *cwd = _getcwd(NULL, 0);
+  const char *home = get_home_cached();
+
   if (cwd) {
-    printf("%s $ ", cwd);
+    if (home && strncmp(cwd, home, strlen(home)) == 0)
+      printf("~%s $ ", cwd + strlen(home));
+    else
+      printf("%s $ ", cwd);
+
     free(cwd);
   } else
     fprintf(stderr, "Unable to get current directory. $ ");
@@ -53,16 +66,14 @@ void process_input(CmdCache *cc, char *input) {
   }
 
   Cmd *cmd0 = &pipeline->cmds[0];
-  CmdFn cmd_fn = cmd_cache_get(cc, cmd0->name);
+  CmdFn cmd_fn = cmd_cache_get(cc, cmd0->argv[0]);
   CmdResult res = cmd_fn(cmd0->argc, cmd0->argv);
 
   switch (res.status) {
     case STATUS_SUCCESS:
-      last_cmd_status = STATUS_SUCCESS;
       if (res.output) puts(res.output);
       break;
     case STATUS_ERROR:
-      last_cmd_status = STATUS_ERROR;
       if (res.output) fprintf(stderr, "Error: %s\n", res.output);
       break;
     case STATUS_EXIT_CMD:
@@ -72,8 +83,7 @@ void process_input(CmdCache *cc, char *input) {
       cmd_cache_free(cc);
       exit(0);
     case STATUS_CMD_NOT_FOUND:
-      last_cmd_status = STATUS_CMD_NOT_FOUND;
-      fprintf(stderr, "Command not found: %s\n", cmd0->name);
+      fprintf(stderr, "Command not found: %s\n", cmd0->argv[0]);
       break;
 
     case STATUS_UNSET:
@@ -90,7 +100,6 @@ void run_shell(void) {
   char *input;
   while ((input = prompt_and_read()) != NULL) {
     process_input(cc, input);
-    free(input);
   }
   cmd_cache_free(cc);
 }
