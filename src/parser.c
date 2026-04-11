@@ -1,28 +1,33 @@
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "lexer.h"
 #include "parser.h"
 #include "token.h"
 
 void add_cmd(Pipeline* pipeline, Cmd cmd) {
-  pipeline->cmds = realloc(pipeline->cmds, (pipeline->count + 1) * sizeof(Cmd));
+  Cmd* tmp = realloc(pipeline->cmds, (pipeline->count + 1) * sizeof(Cmd));
+  if (!tmp) return;
+  pipeline->cmds = tmp;
+
   pipeline->cmds[pipeline->count++] = cmd;
 }
 void add_arg(Cmd* cmd, const char* arg) {
-  cmd->argv = realloc(cmd->argv, sizeof(*cmd->argv) * (cmd->argc + 2));
-  if (!cmd->argv) return;
+  char** tmp = realloc(cmd->argv, sizeof(*cmd->argv) * (cmd->argc + 2));
+  if (!tmp) return;
+  cmd->argv = tmp;
 
-  cmd->argv[cmd->argc++] = strdup(arg);
+  char* dup = strdup(arg);
+  if (!dup) return;
+
+  cmd->argv[cmd->argc++] = dup;
   cmd->argv[cmd->argc] = NULL;
 }
 
 void free_cmd(Cmd* cmd) {
   if (!cmd) return;
-
-  free(cmd->name);
 
   if (cmd->argv) {
     for (int i = 0; i < cmd->argc; i++) free(cmd->argv[i]);
@@ -72,12 +77,14 @@ Pipeline* Parse(Tokens* tokens) {
       case BACKGROUND:
         pipeline->run_in_bg = true;
         break;
+      case END_OF_FILE:
+        if (cmd.argc > 0) add_cmd(pipeline, cmd);
+        return pipeline;
 
       default:
-        if (cmd.name == NULL || is_eof_char(cmd.name[0]))
-          cmd.name = strdup(token.lexeme);
-        else
+        if (token.type == IDENTIFIER || token.type == STRING)
           add_arg(&cmd, token.lexeme);
+
         break;
     }
 
