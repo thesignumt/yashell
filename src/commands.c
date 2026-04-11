@@ -111,7 +111,7 @@ CmdResult cmd_exit(int argc, char** argv) {
 }
 
 CmdResult cmd_ls(int argc, char** argv) {
-  const char* path = (argc > 1) ? argv[0] : ".";
+  const char* path = (argc > 1) ? argv[1] : ".";
 
   DIR* dir = opendir(path);
   if (!dir) return err_from_errno();
