@@ -45,8 +45,7 @@ void cmd_cache_put(CmdCache* cache, const char* cmd_name, CmdFn f) {
 }
 
 static CmdResult cmd_not_found(int argc, char** argv) {
-  (void)argc;
-  (void)argv;
+  UNUSED_ARGS;
   return (CmdResult){STATUS_CMD_NOT_FOUND, NULL, NULL};
 }
 CmdFn cmd_cache_get(CmdCache* cache, const char* cmd_name) {
