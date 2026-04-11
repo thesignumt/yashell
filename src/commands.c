@@ -153,7 +153,7 @@ CmdResult cmd_ls(int argc, char** argv) {
     memcpy(out + len, name, n);
     len += n;
 
-    out[len++] = '\n';
+    out[len++] = ' ';
     out[len] = '\0';
   }
 
