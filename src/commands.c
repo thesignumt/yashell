@@ -1,10 +1,6 @@
-#define _DEBUG_ARGS                   \
-  printf("argc: %d\n", argc);         \
-  printf("argv[0]: %s\n", argv[0]);   \
-  if (argc > 1)                       \
-    printf("argv[1]: %s\n", argv[1]); \
-  else                                \
-    printf("argv[1]: (none)\n");
+#define _DEBUG_ARGS           \
+  printf("argc: %d\n", argc); \
+  for (int i = 0; i < argc; i++) printf("argv[%d]: %s\n", i, argv[i]);
 
 #include <direct.h>
 #include <dirent.h>
