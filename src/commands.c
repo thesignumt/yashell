@@ -1,4 +1,10 @@
-// TODO: make aliases (including pwd and more)
+#define _DEBUG_ARGS                   \
+  printf("argc: %d\n", argc);         \
+  printf("argv[0]: %s\n", argv[0]);   \
+  if (argc > 1)                       \
+    printf("argv[1]: %s\n", argv[1]); \
+  else                                \
+    printf("argv[1]: (none)\n");
 
 #include <direct.h>
 #include <dirent.h>
