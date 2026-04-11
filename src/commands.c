@@ -111,7 +111,6 @@ CmdResult cmd_exit(int argc, char** argv) {
 }
 
 CmdResult cmd_ls(int argc, char** argv) {
-  printf("argc: %d\nargv[0]: %s\n", argc, argv[0]);
   const char* path = (argc > 1) ? argv[0] : ".";
 
   DIR* dir = opendir(path);
