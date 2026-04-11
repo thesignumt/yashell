@@ -85,14 +85,14 @@ CmdResult cmd_echo(int argc, char** argv) {
   }
 
   size_t len = 0;
-  for (int i = 0; i < argc; i++) len += strlen(argv[i]);
-  len += (argc > 1 ? argc - 1 : 0) + 1;
+  for (int i = 1; i < argc; i++) len += strlen(argv[i]);
+  len += (argc > 2 ? argc - 2 : 0) + 1;
 
   char* out = malloc(len);
   if (!out) return oom();
 
   char* p = out;
-  for (int i = 0; i < argc; i++) {
+  for (int i = 1; i < argc; i++) {
     size_t l = strlen(argv[i]);
     memcpy(p, argv[i], l);
     p += l;
