@@ -56,7 +56,8 @@ CmdResult cmd_cat(int argc, char** argv) {
 
 CmdResult cmd_clear(int argc, char** argv) {
   UNUSED_ARGS
-  printf("\033[H\033[J");
+  printf("\033[3J\033[2J\033[H");
+  fflush(stdout);
   return ok_void();
 }
 
