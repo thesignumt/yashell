@@ -48,21 +48,31 @@ Token read_identifier(Lexer* lexer) {
   size_t cap = 32;
   size_t len = 0;
   char* buffer = malloc(cap);
-  // if (!buffer) exit(1);
+
+  // allow Windows drive prefix like C:
+  if (isalpha(lexer->current)) {
+    buffer[len++] = lexer->current;
+    advance(lexer);
+
+    if (lexer->current == ':') {
+      buffer[len++] = lexer->current;
+      advance(lexer);
+    }
+  }
 
   while (lexer->current && is_ident_char(lexer->current)) {
     if (len + 1 >= cap) {
       cap *= 2;
-      char* tmp = realloc(buffer, cap);
-      if (!tmp) exit(1);
-      buffer = tmp;
+      buffer = realloc(buffer, cap);
+      if (!buffer) exit(1);
     }
     buffer[len++] = lexer->current;
     advance(lexer);
   }
+
   buffer[len] = '\0';
   Token tok = new_tok(IDENTIFIER, buffer, start, len);
-  free(buffer);  // safe if new_tok copies string
+  free(buffer);
   return tok;
 }
 
@@ -97,10 +107,17 @@ Token read_string(Lexer* lexer) {
   return new_tok(STRING, buffer, start, lexer->idx - start);
 }
 
-// Symbols: < > >> | &
+// Symbols: < > >> | & :
 Token read_symbol(Lexer* lexer) {
   size_t start = lexer->idx;
   char cur = lexer->current;
+
+  // ignore ':' as a symbol (let identifiers consume it only if already inside
+  // token)
+  if (cur == ':') {
+    advance(lexer);
+    return new_tok(UNKNOWN, ":", start, 1);
+  }
 
   if (eat(lexer, '<'))
     return new_tok(STDIN_REDIRECT, "<", start, lexer->idx - start);

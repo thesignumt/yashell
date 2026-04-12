@@ -27,7 +27,7 @@ char peekn(Lexer lexer, size_t n);
 static inline bool is_eof_char(char c) { return c == '\0'; }
 static inline bool is_ident_char(char c) {
   return isalnum((unsigned char)c) || c == '.' || c == '/' || c == '-' ||
-         c == '_';
+         c == '_' || c == '~';
 }
 
 void skip_whitespace(Lexer *lexer);
