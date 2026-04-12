@@ -82,6 +82,11 @@ CmdResult cmd_cat(int argc, char** argv) {
   return ok(buf);
 }
 
+CmdResult cmd_cd(int argc, char** argv) {
+  _DEBUG_ARGS
+  return ok(xstrdup("cd done"));
+}
+
 CmdResult cmd_clear(int argc, char** argv) {
   UNUSED_ARGS
   printf("\033[3J\033[2J\033[H");
@@ -224,10 +229,11 @@ CmdCache* new_cc(void) {
   static struct {
     const char* name;
     CmdFn f;
-  } cmds[] = {{"cat", cmd_cat},   {"clear", cmd_clear}, {"cls", cmd_clear},
-              {"cwd", cmd_cwd},   {"date", cmd_date},   {"pwd", cmd_cwd},
-              {"echo", cmd_echo}, {"exit", cmd_exit},   {"false", cmd_false},
-              {"ls", cmd_ls},     {"true", cmd_true},   {"whoami", cmd_whoami}};
+  } cmds[] = {{"cat", cmd_cat},      {"cd", cmd_cd},     {"clear", cmd_clear},
+              {"cls", cmd_clear},    {"cwd", cmd_cwd},   {"date", cmd_date},
+              {"pwd", cmd_cwd},      {"echo", cmd_echo}, {"exit", cmd_exit},
+              {"false", cmd_false},  {"ls", cmd_ls},     {"true", cmd_true},
+              {"whoami", cmd_whoami}};
 
   for (size_t i = 0; i < sizeof(cmds) / sizeof(cmds[0]); i++)
     cmd_cache_put(cache, cmds[i].name, cmds[i].f);

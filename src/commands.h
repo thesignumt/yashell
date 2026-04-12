@@ -40,6 +40,14 @@ typedef CmdResult (*CmdFn)(int argc, char *argv[]);
 
 ////////////////////////////////////////////////////////////
 
+static inline char *xstrdup(const char *s) {
+  if (!s) return NULL;
+
+  char *p = strdup(s);
+  if (!p) return NULL;  // let caller convert to oom()
+  return p;
+}
+
 static inline CmdResult cmd_result(CmdStatus status, char *output, void *data) {
   return (CmdResult){status, output, data};
 }
@@ -55,7 +63,7 @@ static inline CmdResult ok_void(void) {
 static inline CmdResult err(const char *msg) {
   if (!msg) return cmd_result(STATUS_ERROR, NULL, NULL);
 
-  char *copy = strdup(msg);
+  char *copy = xstrdup(msg);
   return cmd_result(STATUS_ERROR, copy, NULL);
 }
 
@@ -63,14 +71,9 @@ static inline CmdResult err_from_errno(void) { return err(strerror(errno)); }
 
 static inline CmdResult oom(void) { return err("out of memory"); }
 
-static inline char *xstrdup(const char *s) {
-  if (!s) return NULL;
-  return strdup(s);
-}
-
 static inline char *getenv_dup(const char *name) {
   const char *val = getenv(name);
-  return val ? strdup(val) : NULL;
+  return val ? xstrdup(val) : NULL;
 }
 
 static inline char *format_time(const char *fmt) {
@@ -81,7 +84,7 @@ static inline char *format_time(const char *fmt) {
   char buf[DATE_BUFFER];
   if (!strftime(buf, sizeof(buf), fmt, t)) return NULL;
 
-  return strdup(buf);
+  return xstrdup(buf);
 }
 
 ////////////////////////////////////////////////////////////
