@@ -1,7 +1,3 @@
-#define _DEBUG_ARGS           \
-  printf("argc: %d\n", argc); \
-  for (int i = 0; i < argc; i++) printf("argv[%d]: %s\n", i, argv[i]);
-
 #include <direct.h>
 #include <dirent.h>
 #include <fcntl.h>
@@ -14,6 +10,37 @@
 
 #include "cache.h"
 #include "commands.h"
+
+static char* expand_path(const char* path) {
+  if (!path || path[0] != '~') return _strdup(path);
+
+  const char* home = getenv("USERPROFILE");
+  if (!home) {
+    const char* drive = getenv("HOMEDRIVE");
+    const char* pathp = getenv("HOMEPATH");
+    if (drive && pathp) {
+      size_t len = strlen(drive) + strlen(pathp) + 1;
+      char* tmp = malloc(len);
+      if (!tmp) return NULL;
+      snprintf(tmp, len, "%s%s", drive, pathp);
+      home = tmp;
+      return tmp;  // already allocated
+    }
+    return NULL;
+  }
+
+  // "~" or "~/something"
+  size_t home_len = strlen(home);
+  size_t rest_len = strlen(path + 1);  // skip '~'
+
+  char* out = malloc(home_len + rest_len + 1);
+  if (!out) return NULL;
+
+  memcpy(out, home, home_len);
+  memcpy(out + home_len, path + 1, rest_len + 1);
+
+  return out;
+}
 
 CmdResult cmd_cat(int argc, char** argv) {
   if (argc < 2) return err("no file specified");
@@ -111,9 +138,13 @@ CmdResult cmd_exit(int argc, char** argv) {
 }
 
 CmdResult cmd_ls(int argc, char** argv) {
-  const char* path = (argc > 1) ? argv[1] : ".";
+  const char* raw = (argc > 1) ? argv[1] : ".";
+  char* path = expand_path(raw);
+  if (!path) return err("failed to expand path");
 
   DIR* dir = opendir(path);
+  free(path);
+
   if (!dir) return err_from_errno();
 
   struct dirent* entry;
@@ -153,7 +184,7 @@ CmdResult cmd_ls(int argc, char** argv) {
     memcpy(out + len, name, n);
     len += n;
 
-    out[len++] = ' ';
+    out[len++] = '\n';
     out[len] = '\0';
   }
 

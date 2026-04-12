@@ -11,6 +11,10 @@
   (void)argc;       \
   (void)argv;
 
+#define _DEBUG_ARGS           \
+  printf("argc: %d\n", argc); \
+  for (int i = 0; i < argc; i++) printf("argv[%d]: %s\n", i, argv[i]);
+
 #define INIT_CC_CAPACITY 64
 #define DATE_BUFFER 100
 #define CAT_BUF_SIZE 65536
