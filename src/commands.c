@@ -12,7 +12,7 @@
 #include "commands.h"
 
 static char* expand_path(const char* path) {
-  if (!path || path[0] != '~') return _strdup(path);
+  if (!path || path[0] != '~') return xstrdup(path);
 
   const char* home = getenv("USERPROFILE");
   if (!home) {
