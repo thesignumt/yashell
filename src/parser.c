@@ -4,26 +4,30 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "commands.h"
 #include "parser.h"
 #include "token.h"
 
-void add_cmd(Pipeline* pipeline, Cmd cmd) {
-  Cmd* tmp = realloc(pipeline->cmds, (pipeline->count + 1) * sizeof(Cmd));
-  if (!tmp) return;
+bool add_cmd(Pipeline* pipeline, Cmd cmd) {
+  Cmd* tmp = realloc(pipeline->cmds, (pipeline->count + 1) * sizeof(*tmp));
+  if (!tmp) return false;
+
   pipeline->cmds = tmp;
-
   pipeline->cmds[pipeline->count++] = cmd;
+  return true;
 }
-void add_arg(Cmd* cmd, const char* arg) {
+bool add_arg(Cmd* cmd, const char* arg) {
   char** tmp = realloc(cmd->argv, sizeof(*cmd->argv) * (cmd->argc + 2));
-  if (!tmp) return;
+  if (!tmp) return false;
+
+  char* dup = xstrdup(arg);
+  if (!dup) return false;
+
   cmd->argv = tmp;
-
-  char* dup = strdup(arg);
-  if (!dup) return;
-
   cmd->argv[cmd->argc++] = dup;
   cmd->argv[cmd->argc] = NULL;
+
+  return true;
 }
 
 void free_cmd(Cmd* cmd) {
@@ -49,6 +53,7 @@ void free_pipeline(Pipeline* pipeline) {
 
 Pipeline* Parse(Tokens* tokens) {
   Pipeline* pipeline = calloc(1, sizeof(Pipeline));
+  if (!pipeline) return NULL;
   Cmd cmd = {0};
 
   size_t i = 0;
@@ -57,33 +62,40 @@ Pipeline* Parse(Tokens* tokens) {
 
     switch (token.type) {
       case PIPE:
-        add_cmd(pipeline, cmd);
+        if (!add_cmd(pipeline, cmd)) goto fail;
         cmd = (Cmd){0};
         break;
+
       case STDIN_REDIRECT:
         if (++i < tokens->count)
-          cmd.stdin_redirect = strdup(tokens->items[i].lexeme);
+          cmd.stdin_redirect = xstrdup(tokens->items[i].lexeme);
         break;
+
       case STDOUT_REDIRECT:
         if (++i < tokens->count)
-          cmd.stdout_redirect = strdup(tokens->items[i].lexeme);
+          cmd.stdout_redirect = xstrdup(tokens->items[i].lexeme);
         cmd.append_stdout = false;
         break;
+
       case REDIRECT_APPEND:
         if (++i < tokens->count)
-          cmd.stdout_redirect = strdup(tokens->items[i].lexeme);
+          cmd.stdout_redirect = xstrdup(tokens->items[i].lexeme);
         cmd.append_stdout = true;
         break;
+
       case BACKGROUND:
         pipeline->run_in_bg = true;
         break;
+
       case END_OF_FILE:
-        if (cmd.argc > 0) add_cmd(pipeline, cmd);
+        if (cmd.argc > 0)
+          if (!add_cmd(pipeline, cmd)) goto fail;
+
         return pipeline;
 
       default:
         if (token.type == IDENTIFIER || token.type == STRING)
-          add_arg(&cmd, token.lexeme);
+          if (!add_arg(&cmd, token.lexeme)) goto fail;
 
         break;
     }
@@ -91,6 +103,12 @@ Pipeline* Parse(Tokens* tokens) {
     i++;
   }
 
-  add_cmd(pipeline, cmd);
+  if (cmd.argc > 0)
+    if (!add_cmd(pipeline, cmd)) goto fail;
+
   return pipeline;
+
+fail:
+  free_pipeline(pipeline);
+  return NULL;
 }

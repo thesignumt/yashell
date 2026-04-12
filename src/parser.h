@@ -21,8 +21,8 @@ typedef struct {
   bool run_in_bg;
 } Pipeline;
 
-void add_cmd(Pipeline *pipeline, Cmd cmd);
-void add_arg(Cmd *cmd, const char *arg);
+bool add_cmd(Pipeline *pipeline, Cmd cmd);
+bool add_arg(Cmd *cmd, const char *arg);
 
 void free_cmd(Cmd *cmd);
 void free_pipeline(Pipeline *pipeline);
