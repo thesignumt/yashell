@@ -1,4 +1,3 @@
-#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,29 +7,29 @@
 #include "parser.h"
 #include "token.h"
 
-bool add_cmd(Pipeline *pipeline, Cmd cmd) {
+int add_cmd(Pipeline *pipeline, Cmd cmd) {
     Cmd *tmp = realloc(pipeline->cmds, (pipeline->count + 1) * sizeof(*tmp));
     if (!tmp)
-        return false;
+        return 0;
 
     pipeline->cmds = tmp;
     pipeline->cmds[pipeline->count++] = cmd;
-    return true;
+    return 1;
 }
-bool add_arg(Cmd *cmd, const char *arg) {
+int add_arg(Cmd *cmd, const char *arg) {
     char **tmp = realloc(cmd->argv, sizeof(*cmd->argv) * (cmd->argc + 2));
     if (!tmp)
-        return false;
+        return 0;
 
     char *dup = xstrdup(arg);
     if (!dup)
-        return false;
+        return 0;
 
     cmd->argv = tmp;
     cmd->argv[cmd->argc++] = dup;
     cmd->argv[cmd->argc] = NULL;
 
-    return true;
+    return 1;
 }
 
 void free_cmd(Cmd *cmd) {
@@ -83,17 +82,17 @@ Pipeline *Parse(Tokens *tokens) {
         case STDOUT_REDIRECT:
             if (++i < tokens->count)
                 cmd.stdout_redirect = xstrdup(tokens->items[i].lexeme);
-            cmd.append_stdout = false;
+            cmd.append_stdout = 0;
             break;
 
         case REDIRECT_APPEND:
             if (++i < tokens->count)
                 cmd.stdout_redirect = xstrdup(tokens->items[i].lexeme);
-            cmd.append_stdout = true;
+            cmd.append_stdout = 1;
             break;
 
         case BACKGROUND:
-            pipeline->run_in_bg = true;
+            pipeline->run_in_bg = 1;
             break;
 
         case END_OF_FILE:

@@ -2,7 +2,6 @@
 #define LEXER_H_
 
 #include <ctype.h>
-#include <stdbool.h>
 #include <stddef.h>
 
 #include "token.h"
@@ -24,8 +23,8 @@ int eat(Lexer *lexer, char e);
 char peek(Lexer lexer);
 char peekn(Lexer lexer, size_t n);
 
-static inline bool is_eof_char(char c) { return c == '\0'; }
-static inline bool is_ident_char(char c) {
+static inline int is_eof_char(char c) { return c == '\0'; }
+static inline int is_ident_char(char c) {
     return isalnum((unsigned char)c) || c == '.' || c == '/' || c == '-' ||
            c == '_' || c == '~';
 }
