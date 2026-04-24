@@ -7,18 +7,18 @@
 #include "token.h"
 
 typedef struct {
-  char **argv;  // argv[0] = command name
-  int argc;
+    char **argv; // argv[0] = command name
+    int argc;
 
-  char *stdin_redirect;
-  char *stdout_redirect;
-  bool append_stdout;
+    char *stdin_redirect;
+    char *stdout_redirect;
+    bool append_stdout;
 } Cmd;
 
 typedef struct {
-  Cmd *cmds;
-  int count;
-  bool run_in_bg;
+    Cmd *cmds;
+    int count;
+    bool run_in_bg;
 } Pipeline;
 
 bool add_cmd(Pipeline *pipeline, Cmd cmd);
@@ -29,4 +29,4 @@ void free_pipeline(Pipeline *pipeline);
 
 Pipeline *Parse(Tokens *tokens);
 
-#endif  // PARSER_H_
+#endif // PARSER_H_

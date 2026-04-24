@@ -8,10 +8,10 @@
 #include "token.h"
 
 typedef struct {
-  const char *input;
-  size_t idx;
-  size_t len;
-  char current;
+    const char *input;
+    size_t idx;
+    size_t len;
+    char current;
 } Lexer;
 
 Lexer init_lexer(const char *input);
@@ -26,8 +26,8 @@ char peekn(Lexer lexer, size_t n);
 
 static inline bool is_eof_char(char c) { return c == '\0'; }
 static inline bool is_ident_char(char c) {
-  return isalnum((unsigned char)c) || c == '.' || c == '/' || c == '-' ||
-         c == '_' || c == '~';
+    return isalnum((unsigned char)c) || c == '.' || c == '/' || c == '-' ||
+           c == '_' || c == '~';
 }
 
 void skip_whitespace(Lexer *lexer);
@@ -42,4 +42,4 @@ Token next_token(Lexer *lexer);
 
 Tokens Lex(const char *src);
 
-#endif  // LEXER_H_
+#endif // LEXER_H_
