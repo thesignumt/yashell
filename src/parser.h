@@ -12,6 +12,8 @@ typedef struct {
     char *stdin_redirect;
     char *stdout_redirect;
     int append_stdout;
+
+    struct Cmd *next;
 } Cmd;
 
 typedef struct {

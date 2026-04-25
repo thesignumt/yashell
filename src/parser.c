@@ -5,7 +5,6 @@
 
 #include "commands.h"
 #include "parser.h"
-#include "token.h"
 
 int add_cmd(Pipeline *pipeline, Cmd cmd) {
     Cmd *tmp = realloc(pipeline->cmds, (pipeline->count + 1) * sizeof(*tmp));

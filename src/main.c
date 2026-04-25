@@ -9,7 +9,6 @@
 #include "commands.h"
 #include "lexer.h"
 #include "parser.h"
-#include "token.h"
 
 const char *get_home_cached(void) {
 #ifdef _WIN32

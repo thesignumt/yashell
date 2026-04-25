@@ -12,7 +12,7 @@
 #include "cache.h"
 #include "commands.h"
 
-static char *xstrdup(const char *s) {
+char *xstrdup(const char *s) {
     if (!s)
         return NULL;
 
