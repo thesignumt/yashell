@@ -262,17 +262,26 @@ CmdResult cmd_whoami(int argc, char **argv) {
 CmdCache *new_cc(void) {
     CmdCache *cache = cmd_cache_init(INIT_CC_CAPACITY);
 
-    static struct {
-        const char *name;
-        CmdFn f;
-    } cmds[] = {{"cat", cmd_cat},      {"cd", cmd_cd},     {"clear", cmd_clear},
-                {"cls", cmd_clear},    {"cwd", cmd_cwd},   {"date", cmd_date},
-                {"pwd", cmd_cwd},      {"echo", cmd_echo}, {"exit", cmd_exit},
-                {"false", cmd_false},  {"ls", cmd_ls},     {"true", cmd_true},
-                {"whoami", cmd_whoami}};
+#define COMMAND_LIST                                                           \
+    CMD(cat, cat)                                                              \
+    CMD(cd, cd)                                                                \
+    CMD(clear, clear)                                                          \
+    CMD(cls, clear)                                                            \
+    CMD(cwd, cwd)                                                              \
+    CMD(date, date)                                                            \
+    CMD(pwd, cwd)                                                              \
+    CMD(echo, echo)                                                            \
+    CMD(exit, exit)                                                            \
+    CMD(false, false)                                                          \
+    CMD(ls, ls)                                                                \
+    CMD(true, true)                                                            \
+    CMD(whoami, whoami)
 
-    for (size_t i = 0; i < sizeof(cmds) / sizeof(cmds[0]); i++)
-        cmd_cache_put(cache, cmds[i].name, cmds[i].f);
+#define CMD(name, fn) cmd_cache_put(cache, #name, cmd_##fn);
+
+    COMMAND_LIST
+
+#undef CMD
 
     return cache;
 }
