@@ -16,12 +16,10 @@ typedef struct {
 Lexer init_lexer(const char *input);
 
 void advance(Lexer *lexer);
-void advancen(Lexer *lexer, size_t n);
 
 int eat(Lexer *lexer, char e);
 
 char peek(Lexer lexer);
-char peekn(Lexer lexer, size_t n);
 
 static inline int is_eof_char(char c) { return c == '\0'; }
 static inline int is_ident_char(char c) {

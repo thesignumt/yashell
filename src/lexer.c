@@ -22,10 +22,6 @@ void advance(Lexer *lexer) {
     lexer->current =
         (lexer->idx < lexer->len) ? lexer->input[lexer->idx] : '\0';
 }
-void advancen(Lexer *lexer, size_t n) {
-    lexer->idx = (lexer->idx + n < lexer->len) ? lexer->idx + n : lexer->len;
-    lexer->current = lexer->input[lexer->idx];
-}
 
 // e = expected
 int eat(Lexer *lexer, char e) {
@@ -34,10 +30,6 @@ int eat(Lexer *lexer, char e) {
         return 1;
     }
     return 0;
-}
-
-char peek(Lexer lexer) {
-    return (lexer.idx + 1 < lexer.len) ? lexer.input[lexer.idx + 1] : '\0';
 }
 
 void skip_whitespace(Lexer *lexer) {
