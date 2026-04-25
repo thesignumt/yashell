@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 
-#include "token.h"
+#include "lexer.h"
 
 typedef struct {
     char **argv; // argv[0] = command name

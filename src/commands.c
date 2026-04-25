@@ -6,10 +6,63 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "cache.h"
 #include "commands.h"
+
+static char *xstrdup(const char *s) {
+    if (!s)
+        return NULL;
+
+    char *p = strdup(s);
+    if (!p)
+        return NULL; // let caller convert to oom()
+    return p;
+}
+
+static CmdResult cmd_result(CmdStatus status, char *output, void *data) {
+    return (CmdResult){status, output, data};
+}
+
+static CmdResult ok(char *output) {
+    return cmd_result(STATUS_SUCCESS, output, NULL);
+}
+
+static CmdResult ok_void(void) {
+    return cmd_result(STATUS_SUCCESS, NULL, NULL);
+}
+
+static CmdResult err(const char *msg) {
+    if (!msg)
+        return cmd_result(STATUS_ERROR, NULL, NULL);
+
+    char *copy = xstrdup(msg);
+    return cmd_result(STATUS_ERROR, copy, NULL);
+}
+
+static CmdResult err_from_errno(void) { return err(strerror(errno)); }
+
+static CmdResult oom(void) { return err("out of memory"); }
+
+static char *getenv_dup(const char *name) {
+    const char *val = getenv(name);
+    return val ? xstrdup(val) : NULL;
+}
+
+static char *format_time(const char *fmt) {
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+    if (!t)
+        return NULL;
+
+    char buf[DATE_BUFFER];
+    if (!strftime(buf, sizeof(buf), fmt, t))
+        return NULL;
+
+    return xstrdup(buf);
+}
 
 static char *expand_path(const char *path) {
     if (!path || path[0] != '~')
@@ -44,6 +97,8 @@ static char *expand_path(const char *path) {
 
     return out;
 }
+
+////////////////////////////////////////////////////////////
 
 CmdResult cmd_cat(int argc, char **argv) {
     if (argc < 2)

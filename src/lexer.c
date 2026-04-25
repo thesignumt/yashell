@@ -5,65 +5,69 @@
 #include <string.h>
 
 #include "lexer.h"
-#include "token.h"
 
-Lexer init_lexer(const char *input) {
-    Lexer lexer;
-    lexer.input = input;
-    lexer.idx = 0;
-    lexer.len = strlen(input);
-    lexer.current = input[0];
-    return lexer;
+static LexState init_lexer(const char *input) {
+    LexState ls;
+    ls.input = input;
+    ls.idx = 0;
+    ls.len = strlen(input);
+    ls.current = input[0];
+    return ls;
 }
 
-void advance(Lexer *lexer) {
-    if (lexer->idx < lexer->len)
-        lexer->idx++;
-    lexer->current =
-        (lexer->idx < lexer->len) ? lexer->input[lexer->idx] : '\0';
+static int is_eof_char(char c) { return c == '\0'; }
+static int is_ident_char(char c) {
+    return isalnum((unsigned char)c) || c == '.' || c == '/' || c == '-' ||
+           c == '_' || c == '~';
+}
+
+static void advance(LexState *ls) {
+    if (ls->idx < ls->len)
+        ls->idx++;
+    ls->current = (ls->idx < ls->len) ? ls->input[ls->idx] : '\0';
 }
 
 // e = expected
-int eat(Lexer *lexer, char e) {
-    if (lexer->current == e) {
-        advance(lexer);
+static int eat(LexState *ls, char e) {
+    if (ls->current == e) {
+        advance(ls);
         return 1;
     }
     return 0;
 }
 
-void skip_whitespace(Lexer *lexer) {
+static void skip_whitespace(LexState *lexer) {
     while (isspace(lexer->current))
         advance(lexer);
 }
 
 // IDENTIFIER: command names, args, paths
-Token read_identifier(Lexer *lexer) {
-    size_t start = lexer->idx;
+static Token read_identifier(LexState *ls) {
+    size_t start = ls->idx;
     size_t cap = 32;
     size_t len = 0;
     char *buffer = malloc(cap);
 
     // allow Windows drive prefix like C:
-    if (isalpha(lexer->current)) {
-        buffer[len++] = lexer->current;
-        advance(lexer);
+    if (isalpha(ls->current)) {
+        buffer[len++] = ls->current;
+        advance(ls);
 
-        if (lexer->current == ':') {
-            buffer[len++] = lexer->current;
-            advance(lexer);
+        if (ls->current == ':') {
+            buffer[len++] = ls->current;
+            advance(ls);
         }
     }
 
-    while (lexer->current && is_ident_char(lexer->current)) {
+    while (ls->current && is_ident_char(ls->current)) {
         if (len + 1 >= cap) {
             cap *= 2;
             buffer = realloc(buffer, cap);
             if (!buffer)
                 exit(1);
         }
-        buffer[len++] = lexer->current;
-        advance(lexer);
+        buffer[len++] = ls->current;
+        advance(ls);
     }
 
     buffer[len] = '\0';
@@ -73,88 +77,88 @@ Token read_identifier(Lexer *lexer) {
 }
 
 // STRING: quoted arguments
-Token read_string(Lexer *lexer) {
-    size_t start = lexer->idx;
-    char quote = lexer->current;
-    advance(lexer);
+static Token read_string(LexState *ls) {
+    size_t start = ls->idx;
+    char quote = ls->current;
+    advance(ls);
 
     char buffer[1024];
     size_t i = 0;
 
-    while (lexer->current != quote && !is_eof_char(lexer->current) &&
+    while (ls->current != quote && !is_eof_char(ls->current) &&
            i < sizeof(buffer) - 1) {
-        if (eat(lexer, '\\')) {
-            if (lexer->current == quote || lexer->current == '\\') {
-                buffer[i] = lexer->current;
-                advance(lexer);
+        if (eat(ls, '\\')) {
+            if (ls->current == quote || ls->current == '\\') {
+                buffer[i] = ls->current;
+                advance(ls);
             } else
                 buffer[i] = '\\';
 
         } else {
-            buffer[i] = lexer->current;
-            advance(lexer);
+            buffer[i] = ls->current;
+            advance(ls);
         }
         i++;
     }
 
-    eat(lexer, quote);
+    eat(ls, quote);
     buffer[i] = '\0';
 
-    return new_tok(STRING, buffer, start, lexer->idx - start);
+    return new_tok(STRING, buffer, start, ls->idx - start);
 }
 
 // Symbols: < > >> | & :
-Token read_symbol(Lexer *lexer) {
-    size_t start = lexer->idx;
-    char cur = lexer->current;
+static Token read_symbol(LexState *ls) {
+    size_t start = ls->idx;
+    char cur = ls->current;
 
     // ignore ':' as a symbol (let identifiers consume it only if already inside
     // token)
     if (cur == ':') {
-        advance(lexer);
+        advance(ls);
         return new_tok(UNKNOWN, ":", start, 1);
     }
 
-    if (eat(lexer, '<'))
-        return new_tok(STDIN_REDIRECT, "<", start, lexer->idx - start);
-    if (eat(lexer, '>')) {
-        if (eat(lexer, '>'))
-            return new_tok(REDIRECT_APPEND, ">>", start, lexer->idx - start);
-        return new_tok(STDOUT_REDIRECT, ">", start, lexer->idx - start);
+    if (eat(ls, '<'))
+        return new_tok(STDIN_REDIRECT, "<", start, ls->idx - start);
+    if (eat(ls, '>')) {
+        if (eat(ls, '>'))
+            return new_tok(REDIRECT_APPEND, ">>", start, ls->idx - start);
+        return new_tok(STDOUT_REDIRECT, ">", start, ls->idx - start);
     }
-    if (eat(lexer, '|'))
-        return new_tok(PIPE, "|", start, lexer->idx - start);
-    if (eat(lexer, '&'))
-        return new_tok(BACKGROUND, "&", start, lexer->idx - start);
+    if (eat(ls, '|'))
+        return new_tok(PIPE, "|", start, ls->idx - start);
+    if (eat(ls, '&'))
+        return new_tok(BACKGROUND, "&", start, ls->idx - start);
 
-    advance(lexer);
+    advance(ls);
     return new_tok(UNKNOWN, (char[]){cur, '\0'}, start, 1);
 }
 
-Token next_token(Lexer *lexer) {
-    skip_whitespace(lexer);
+static Token next_token(LexState *ls) {
+    skip_whitespace(ls);
 
-    if (is_eof_char(lexer->current))
-        return new_tok(END_OF_FILE, "", lexer->idx, 0);
+    if (is_eof_char(ls->current))
+        return new_tok(END_OF_FILE, "", ls->idx, 0);
 
-    if (lexer->current == '\'' || lexer->current == '"')
-        return read_string(lexer);
+    if (ls->current == '\'' || ls->current == '"')
+        return read_string(ls);
 
-    if (is_ident_char(lexer->current))
-        return read_identifier(lexer);
+    if (is_ident_char(ls->current))
+        return read_identifier(ls);
 
-    return read_symbol(lexer);
+    return read_symbol(ls);
 }
 
 // NOTE: EOF is a sentinel token used only by the parser.
 Tokens Lex(const char *src) {
-    Lexer lexer = init_lexer(src);
+    LexState ls = init_lexer(src);
     Tokens toks = {0};
     toks.capacity = 16;
     toks.items = malloc(toks.capacity * sizeof(*toks.items));
 
     while (1) {
-        Token token = next_token(&lexer);
+        Token token = next_token(&ls);
         if (toks.count >= toks.capacity) {
             toks.capacity *= 2;
             toks.items =

@@ -1,41 +1,51 @@
 #ifndef LEXER_H_
 #define LEXER_H_
 
-#include <ctype.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
 
-#include "token.h"
+typedef enum {
+    STDIN_REDIRECT,  // <
+    STDOUT_REDIRECT, // >
+    REDIRECT_APPEND, // >>
+    PIPE,            // |
+    BACKGROUND,      // &
+    IDENTIFIER,      // commands & arguments
+    STRING,          // "quoted args"
+    END_OF_FILE,     // end of input
+    UNKNOWN
+} TokenType;
+
+typedef struct {
+    TokenType type;
+    char *lexeme;
+    size_t idx;
+    size_t len;
+} Token;
+
+static inline Token new_tok(TokenType t, char *lexeme, size_t idx, size_t len) {
+    return (Token){t, strdup(lexeme), idx, len};
+}
+
+typedef struct { // TODO: use zero memory
+    Token *items;
+    size_t count;
+    size_t capacity;
+} Tokens;
+
+static inline void free_tokens(Tokens *toks) {
+    for (size_t i = 0; i < toks->count; i++)
+        free(toks->items[i].lexeme);
+    free(toks->items);
+}
 
 typedef struct {
     const char *input;
     size_t idx;
     size_t len;
     char current;
-} Lexer;
-
-Lexer init_lexer(const char *input);
-
-void advance(Lexer *lexer);
-
-int eat(Lexer *lexer, char e);
-
-char peek(Lexer lexer);
-
-static inline int is_eof_char(char c) { return c == '\0'; }
-static inline int is_ident_char(char c) {
-    return isalnum((unsigned char)c) || c == '.' || c == '/' || c == '-' ||
-           c == '_' || c == '~';
-}
-
-void skip_whitespace(Lexer *lexer);
-
-Token read_identifier(Lexer *lexer);
-
-Token read_string(Lexer *lexer);
-
-Token read_symbol(Lexer *lexer);
-
-Token next_token(Lexer *lexer);
+} LexState;
 
 Tokens Lex(const char *src);
 
