@@ -6,7 +6,7 @@
 #include "commands.h"
 #include "parser.h"
 
-int add_cmd(Pipeline *pipeline, Cmd cmd) {
+static int add_cmd(Pipeline *pipeline, Cmd cmd) {
     Cmd *tmp = realloc(pipeline->cmds, (pipeline->count + 1) * sizeof(*tmp));
     if (!tmp)
         return 0;
@@ -15,7 +15,8 @@ int add_cmd(Pipeline *pipeline, Cmd cmd) {
     pipeline->cmds[pipeline->count++] = cmd;
     return 1;
 }
-int add_arg(Cmd *cmd, const char *arg) {
+
+static int add_arg(Cmd *cmd, const char *arg) {
     char **tmp = realloc(cmd->argv, sizeof(*cmd->argv) * (cmd->argc + 2));
     if (!tmp)
         return 0;
@@ -31,7 +32,7 @@ int add_arg(Cmd *cmd, const char *arg) {
     return 1;
 }
 
-void free_cmd(Cmd *cmd) {
+static void free_cmd(Cmd *cmd) {
     if (!cmd)
         return;
 

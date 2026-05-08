@@ -22,10 +22,6 @@ typedef struct {
     int run_in_bg;
 } Pipeline;
 
-int add_cmd(Pipeline *pipeline, Cmd cmd);
-int add_arg(Cmd *cmd, const char *arg);
-
-void free_cmd(Cmd *cmd);
 void free_pipeline(Pipeline *pipeline);
 
 Pipeline *Parse(Tokens *tokens);

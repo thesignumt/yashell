@@ -10,7 +10,7 @@
 #include "lexer.h"
 #include "parser.h"
 
-const char *get_home_cached(void) {
+static const char *get_home_cached(void) {
 #ifdef _WIN32
     const char *h = getenv("USERPROFILE");
     return h ? h : getenv("HOMEDRIVE");
@@ -19,7 +19,7 @@ const char *get_home_cached(void) {
 #endif
 }
 
-char *read_input(void) {
+static char *read_input(void) {
     size_t size = 2048;
     char *buf = malloc(size);
     if (!buf)
@@ -37,7 +37,7 @@ char *read_input(void) {
     return buf;
 }
 
-char *prompt_and_read(void) {
+static char *prompt_and_read(void) {
     char *cwd = _getcwd(NULL, 0);
     const char *home = get_home_cached();
 
@@ -55,7 +55,7 @@ char *prompt_and_read(void) {
     return read_input();
 }
 
-void process_input(CmdCache *cc, char *input) {
+static void process_input(CmdCache *cc, char *input) {
     if (!input || !*input)
         return;
 
@@ -100,7 +100,7 @@ void process_input(CmdCache *cc, char *input) {
     free_pipeline(pipeline);
 }
 
-void run_shell(void) {
+static void run_shell(void) {
     CmdCache *cc = new_cc();
     char *input;
     while ((input = prompt_and_read()) != NULL) {
